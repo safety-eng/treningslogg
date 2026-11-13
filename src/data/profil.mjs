@@ -3,7 +3,15 @@ export const profil = {
   bloggnavn: 'Fredriks treningslogg',
   navn: 'Fredrik',
   beskrivelse:
-    'Åpen treningslogg. Hver økt blir et innlegg, og tallene samles i statistikken på forsiden.',
+    'Trening er terapi. En åpen logg fra en treningsreise gjennom tykt og tynt, med statistikk for hver økt.',
+};
+
+// Teksten øverst på forsiden.
+export const hero = {
+  tittel: 'Gjennom tykt og tynt',
+  tekst:
+    'Trening er terapi for meg. Dette er loggen fra en reise gjennom skader og alt annet livet har bydd på, én økt av gangen.',
+  bildeAlt: 'Løper i motlys langs Nidelva, med Nidarosdomen i bakgrunnen',
 };
 
 export const mal = {

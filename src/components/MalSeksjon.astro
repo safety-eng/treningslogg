@@ -34,8 +34,8 @@ const x = (t: number) => ((tregest - t) / (tregest - raskest)) * 100;
 const ticks: number[] = [];
 for (let t = Math.ceil(raskest / 15) * 15; t <= tregest; t += 15) ticks.push(t);
 ---
-<section class="hero wrap" aria-labelledby="mal-tittel">
-  <h1 id="mal-tittel">{mal.tittel}</h1>
+<section class="malseksjon wrap" aria-labelledby="mal-tittel">
+  <h2 id="mal-tittel">Nå: {mal.tittel}</h2>
   <p class="ingress">
     Etter {referanse.navn} på {referanse.tid} trener jeg systematisk i {mal.uker} uker mot en 10 km.{' '}
     {planUke && <strong>Nå er jeg i uke {planUke} av {mal.uker}.</strong>}
@@ -76,16 +76,15 @@ for (let t = Math.ceil(raskest / 15) * 15; t <= tregest; t += 15) ticks.push(t);
 </section>
 
 <style>
-  .hero { padding-top: 2.5rem; padding-bottom: 3rem; }
-  h1 {
+  .malseksjon { padding-top: 3rem; padding-bottom: 3rem; }
+  h2 {
     font-family: var(--font-cond);
     font-weight: 700;
-    font-size: clamp(3.25rem, 11vw, 7.5rem);
-    line-height: 0.92;
-    letter-spacing: -0.01em;
-    margin-bottom: 1.25rem;
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    line-height: 1;
+    margin-bottom: 0.9rem;
   }
-  .ingress { max-width: 52ch; font-size: 1.2rem; color: var(--ink-2); }
+  .ingress { max-width: 56ch; font-size: 1.1rem; color: var(--ink-2); }
   .ingress strong { color: var(--ink); font-weight: 600; }
 
   .linjal { margin: 2.5rem 0 0; position: relative; }

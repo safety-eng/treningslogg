@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import MalHero from '../components/MalHero.astro';
+import Hero from '../components/Hero.astro';
+import MalSeksjon from '../components/MalSeksjon.astro';
 import Dashboard from '../components/Dashboard.astro';
 import InnleggListe from '../components/InnleggListe.astro';
 import { hentOkter, hentInnlegg } from '../lib/data';
@@ -11,7 +12,8 @@ const innlegg = await hentInnlegg();
 const planUke = innlegg.find((i) => i.data.plan?.navn === mal.planNavn)?.data.plan?.uke ?? null;
 ---
 <Base>
-  <MalHero okter={okter} planUke={planUke} />
+  <Hero />
+  <MalSeksjon okter={okter} planUke={planUke} />
   <div class="wrap"><hr class="lane" /></div>
   <Dashboard okter={okter} />
   <div class="wrap siste">
