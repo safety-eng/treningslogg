@@ -6,8 +6,10 @@ type Innlegg = { id: string; data: any; body?: string };
 interface Props {
   innlegg: Innlegg[];
   overskrift?: 2 | 3;
+  /** Minste bredde per kort før rutenettet bryter til færre kolonner. */
+  minBredde?: string;
 }
-const { innlegg, overskrift = 3 } = Astro.props;
+const { innlegg, overskrift = 3, minBredde = '24rem' } = Astro.props;
 const Tittel = overskrift === 2 ? 'h2' : 'h3';
 const tall = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 2 });
 
@@ -19,7 +21,7 @@ function sammendrag(o: any) {
   return [navn, ...(o.distanse_km ? [`${tall.format(o.distanse_km)} km`] : []), ...(sek ? [formatKlokke(sek)] : [])];
 }
 ---
-<ol class="kortliste" reversed>
+<ol class="kortliste" reversed style={`--min-bredde: ${minBredde}`}>
   {innlegg.map((i) => (
     <li class="kort uthulet">
       <p class="topp">
@@ -45,7 +47,7 @@ function sammendrag(o: any) {
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--min-bredde, 24rem)), 1fr));
     gap: 1.25rem;
   }
   .kort {

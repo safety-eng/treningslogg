@@ -10,21 +10,28 @@ import { mal } from '../data/profil.mjs';
 const okter = await hentOkter();
 const innlegg = await hentInnlegg();
 const planUke = innlegg.find((i) => i.data.plan?.navn === mal.planNavn)?.data.plan?.uke ?? null;
+const ANTALL = 3;
 ---
-<Base>
+<Base bilde="/og/forside.jpg">
   <Hero />
   <MalSeksjon okter={okter} planUke={planUke} />
-  <div class="wrap"><hr class="lane" /></div>
-  <Dashboard okter={okter} />
-  <div class="wrap siste">
+
+  <section class="wrap siste" aria-labelledby="siste-tittel">
     <hr class="lane" />
-    <h2>Siste innlegg</h2>
-    <InnleggListe innlegg={innlegg.slice(0, 6)} />
-    {innlegg.length > 6 && <p><a href="/okter/">Se alle {innlegg.length} innlegg</a></p>}
-  </div>
+    <div class="hode">
+      <h2 id="siste-tittel">Siste innlegg</h2>
+      <a href="/okter/">Alle økter ({innlegg.length})</a>
+    </div>
+    <InnleggListe innlegg={innlegg.slice(0, ANTALL)} minBredde="19rem" />
+  </section>
+
+  <div class="wrap statistikk-skille"><hr class="lane" /></div>
+  <Dashboard okter={okter} />
 </Base>
 
 <style>
-  .siste { margin-top: 3.5rem; }
-  .siste h2 { margin: 2.5rem 0 1rem; }
+  .siste { padding-bottom: 1rem; }
+  .hode { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 2.5rem 0 1.25rem; }
+  .hode a { color: var(--ink-2); font-weight: 500; white-space: nowrap; }
+  .statistikk-skille { margin-top: 2.5rem; }
 </style>

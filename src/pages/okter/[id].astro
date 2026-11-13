@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { formatDatoMedUkedag } from '../../lib/data';
+import { formatDatoMedUkedag, utdrag } from '../../lib/data';
 import { parseVarighet, formatKlokke, formatTempo, normaliserOvelse, TYPE_NAVN, KATEGORI_NAVN } from '../../lib/okt-core.mjs';
 
 export async function getStaticPaths() {
@@ -29,8 +29,9 @@ const okter = d.okter.map((o: any) => {
   return { ...o, navn, tall: tall_ };
 });
 const sammendrag = okter.map((o: any) => `${o.navn}: ${o.tall.map((t: any) => t.verdi).join(', ')}`).join('. ');
+const beskrivelse = utdrag(entry.body, 160) || sammendrag;
 ---
-<Base tittel={d.tittel} beskrivelse={sammendrag}>
+<Base tittel={d.tittel} beskrivelse={beskrivelse} bilde={`/og/${entry.id}.jpg`} type="article">
   <article class="wrap innlegg">
     <p class="sti"><a href="/okter/">Alle økter</a></p>
     <div class="boks uthulet">

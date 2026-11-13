@@ -5,9 +5,11 @@ import '@fontsource/barlow/600.css';
 import '../styles/global.css';
 import { profil } from '../data/profil.mjs';
 
-interface Props { tittel?: string; beskrivelse?: string }
-const { tittel, beskrivelse = profil.beskrivelse } = Astro.props;
+interface Props { tittel?: string; beskrivelse?: string; bilde?: string; type?: 'website' | 'article' }
+const { tittel, beskrivelse = profil.beskrivelse, bilde = '/og/forside.jpg', type = 'website' } = Astro.props;
 const fullTittel = tittel ? `${tittel} | ${profil.bloggnavn}` : profil.bloggnavn;
+const url = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
 ---
 <!doctype html>
 <html lang="nb">
@@ -16,8 +18,18 @@ const fullTittel = tittel ? `${tittel} | ${profil.bloggnavn}` : profil.bloggnavn
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTittel}</title>
     <meta name="description" content={beskrivelse} />
-    <meta property="og:title" content={fullTittel} />
+    <link rel="canonical" href={url} />
+    <meta property="og:site_name" content={profil.bloggnavn} />
+    <meta property="og:locale" content="nb_NO" />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={url} />
+    <meta property="og:title" content={tittel ?? profil.bloggnavn} />
     <meta property="og:description" content={beskrivelse} />
+    <meta property="og:image" content={bildeUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={tittel ?? profil.bloggnavn} />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preload" href="/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/json" href="/data/okter.json" title="Alle økter som JSON" />

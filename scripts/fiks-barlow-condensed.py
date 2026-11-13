@@ -4,6 +4,9 @@ Glyfen Oslash har ca. 120-160 enheter ekstra luft til høyre, så «Økter»
 vises som «Ø kter». Skriptet setter bredden slik at luften til høyre blir
 lik som for O/o, og lagrer filene i public/fonts/.
 Kjøres én gang: python3 scripts/fiks-barlow-condensed.py
+
+Delingsbildene (src/pages/og/) bruker TTF-kopier av de rettede filene i
+src/assets/fonts/, fordi satori ikke leser woff2.
 """
 from fontTools.ttLib import TTFont
 from fontTools.pens.boundsPen import BoundsPen
