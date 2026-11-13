@@ -105,6 +105,33 @@ export function flatUt(innlegg) {
   return ut.sort((a, b) => (a.dato === b.dato ? a.nr - b.nr : a.dato < b.dato ? -1 : 1));
 }
 
+/**
+ * Rader til databasetabellene (innlegg, okter, ovelser, sett).
+ * innlegg: [{ id, data, tekst }]
+ */
+export function lagRader(innlegg) {
+  const r = { innlegg: [], okter: [], ovelser: [], sett: [] };
+  for (const i of innlegg) {
+    r.innlegg.push({
+      slug: i.id, dato: i.data.dato, tittel: i.data.tittel, klokkeslett: i.data.klokkeslett ?? null,
+      plan_navn: i.data.plan?.navn ?? null, plan_uke: i.data.plan?.uke ?? null, tekst: i.tekst ?? '',
+    });
+  }
+  for (const o of flatUt(innlegg)) {
+    r.okter.push({
+      id: o.id, innlegg_slug: o.innlegg, nr: o.nr, dato: o.dato, type: o.type, kategori: o.kategori,
+      aktivitet: o.aktivitet, distanse_km: o.km, varighet_sek: o.sek, opplevd: o.opplevd,
+      planlagt: o.planlagt, kilde: o.kilde,
+    });
+    for (const ov of o.ovelser) {
+      const ovId = `${o.id}-${ov.nr}`;
+      r.ovelser.push({ id: ovId, okt_id: o.id, nr: ov.nr, navn: ov.navn });
+      for (const s of ov.sett) r.sett.push({ id: `${ovId}-${s.nr}`, ovelse_id: ovId, nr: s.nr, reps: s.reps, kg: s.kg });
+    }
+  }
+  return r;
+}
+
 export const TYPE_NAVN = { lop: 'Løp', styrke: 'Styrke', annet: 'Annet' };
 export const KATEGORI_NAVN = {
   rolig: 'Rolig', langtur: 'Langtur', terskel: 'Terskel', intervall: 'Intervall',

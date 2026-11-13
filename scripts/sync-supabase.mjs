@@ -1,14 +1,12 @@
-// Speiler alle økt-filene i src/content/okter/ til Supabase.
-// Repoet er fasiten: databasen tømmes og fylles på nytt i én transaksjon.
+// Manuell synk av økt-filene til Supabase (vanligvis trengs den ikke:
+// Supabase-funksjonen synk-treningslogg henter /data/synk.json fra nettsiden selv).
 //
-//   DATABASE_URL=postgres://... node scripts/sync-supabase.mjs   skriver til databasen
 //   node scripts/sync-supabase.mjs --sql                         skriver SQL til stdout
-//
-// Bruk Session pooler-adressen fra Supabase (IPv4), ikke Direct connection.
+//   DATABASE_URL=postgres://... node scripts/sync-supabase.mjs   skriver direkte til databasen
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
-import { flatUt } from '../src/lib/okt-core.mjs';
+import { lagRader } from '../src/lib/okt-core.mjs';
 
 const MAPPE = path.resolve('src/content/okter');
 
@@ -20,30 +18,6 @@ async function lesInnlegg() {
     innlegg.push({ id: fil.replace(/\.md$/, '').toLowerCase(), data, tekst: content.trim() });
   }
   return innlegg;
-}
-
-function lagRader(innlegg) {
-  const okter = flatUt(innlegg);
-  const r = { innlegg: [], okter: [], ovelser: [], sett: [] };
-  for (const i of innlegg) {
-    r.innlegg.push({
-      slug: i.id, dato: i.data.dato, tittel: i.data.tittel, klokkeslett: i.data.klokkeslett ?? null,
-      plan_navn: i.data.plan?.navn ?? null, plan_uke: i.data.plan?.uke ?? null, tekst: i.tekst,
-    });
-  }
-  for (const o of okter) {
-    r.okter.push({
-      id: o.id, innlegg_slug: o.innlegg, nr: o.nr, dato: o.dato, type: o.type, kategori: o.kategori,
-      aktivitet: o.aktivitet, distanse_km: o.km, varighet_sek: o.sek, opplevd: o.opplevd,
-      planlagt: o.planlagt, kilde: o.kilde,
-    });
-    for (const ov of o.ovelser) {
-      const ovId = `${o.id}-${ov.nr}`;
-      r.ovelser.push({ id: ovId, okt_id: o.id, nr: ov.nr, navn: ov.navn });
-      for (const s of ov.sett) r.sett.push({ id: `${ovId}-${s.nr}`, ovelse_id: ovId, nr: s.nr, reps: s.reps, kg: s.kg });
-    }
-  }
-  return r;
 }
 
 const REKKEFOLGE = ['innlegg', 'okter', 'ovelser', 'sett'];
@@ -73,7 +47,7 @@ const rader = lagRader(innlegg);
 if (process.argv.includes('--sql')) {
   console.log(somSql(rader));
 } else if (!process.env.DATABASE_URL) {
-  console.log('DATABASE_URL mangler, hopper over synk. Legg den inn som secret i GitHub.');
+  console.log('DATABASE_URL mangler. Bruk --sql, eller la Supabase-funksjonen synke fra nettsiden.');
 } else {
   const { default: postgres } = await import('postgres');
   const sql = postgres(process.env.DATABASE_URL, { prepare: false, ssl: 'require', max: 1 });
