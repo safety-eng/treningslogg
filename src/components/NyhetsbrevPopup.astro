@@ -1,0 +1,51 @@
+---
+import NyhetsbrevSkjema from './NyhetsbrevSkjema.astro';
+import { nyhetsbrev } from '../data/profil.mjs';
+---
+<dialog class="nb-popup" id="nyhetsbrev-popup" aria-labelledby="nb-popup-tittel">
+  <button type="button" class="lukk" data-lukk aria-label="Lukk">×</button>
+  <h2 id="nb-popup-tittel" tabindex="-1" autofocus>{nyhetsbrev.tittel}</h2>
+  <p class="tekst">{nyhetsbrev.tekst}</p>
+  <NyhetsbrevSkjema id="nb-popup" kompakt />
+  <button type="button" class="ikke-na" data-lukk>Nei takk</button>
+</dialog>
+
+<script>
+  import { startNyhetsbrev } from '../scripts/nyhetsbrev';
+  startNyhetsbrev();
+</script>
+
+<style>
+  .nb-popup {
+    width: min(30rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 1.75rem 1.75rem 1.25rem;
+    border: 0;
+    border-radius: 16px;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 24px 60px rgba(10, 15, 20, 0.35);
+  }
+  .nb-popup::backdrop { background: rgba(10, 15, 20, 0.45); }
+  .nb-popup h2 { font-size: 2rem; margin: 0 2rem 0.5rem 0; outline: none; }
+  .tekst { color: var(--ink-2); margin: 0 0 1.1rem; }
+  .lukk {
+    position: absolute; top: 0.75rem; right: 0.75rem;
+    width: 2.25rem; height: 2.25rem; border-radius: 50%;
+    border: 0; background: transparent; color: var(--ink-2);
+    font-size: 1.6rem; line-height: 1; cursor: pointer;
+  }
+  .lukk:hover { background: var(--inset-bg); color: var(--ink); }
+  .ikke-na {
+    margin-top: 0.6rem; border: 0; background: none; padding: 0.25rem 0;
+    font: inherit; font-size: 0.92rem; color: var(--muted); cursor: pointer; text-decoration: underline;
+  }
+  .nb-popup:has(.ferdig) .ikke-na { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .nb-popup[open] { animation-name: nb-inn; animation-duration: 0.22s; animation-timing-function: ease-out; }
+  }
+  @keyframes nb-inn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 560px) {
+    .nb-popup { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: 16px 16px 0 0; }
+  }
+</style>

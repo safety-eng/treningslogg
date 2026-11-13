@@ -29,3 +29,11 @@ export const referanse = {
   tid: '1:27:40',
   ar: 2026,
 };
+
+// Nyhetsbrev via Buttondown. Påmeldingen går gjennom Supabase-funksjonen meld-pa.
+export const nyhetsbrev = {
+  url: 'https://mtjwkcunpjgvagptuiet.supabase.co/functions/v1/meld-pa',
+  tittel: 'Få nye innlegg på e-post',
+  tekst: 'Én e-post hver gang det kommer et nytt innlegg. Ingen reklame, og du kan melde deg av når som helst.',
+  samtykke: 'Ja, jeg vil motta e-post fra Fredriks treningslogg når det kommer nye innlegg.',
+};

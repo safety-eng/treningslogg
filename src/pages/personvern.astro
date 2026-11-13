@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import { profil } from '../data/profil.mjs';
+---
+<Base tittel="Personvern" beskrivelse="Hvordan nyhetsbrevet og nettsiden behandler personopplysninger.">
+  <article class="wrap personvern">
+    <h1>Personvern</h1>
+    <p class="ingress">Kort og ærlig om hvilke opplysninger {profil.bloggnavn} tar vare på, og hvorfor.</p>
+
+    <h2>Nyhetsbrevet</h2>
+    <p>
+      Når du melder deg på, lagres fornavnet og e-postadressen din, sammen med tidspunktet du ga samtykke.
+      Opplysningene brukes bare til å sende deg en e-post når det kommer et nytt innlegg.
+    </p>
+    <p>
+      Nyhetsbrevet sendes med Buttondown, en nyhetsbrevtjeneste som lagrer listen over abonnenter på vegne av meg.
+      Påmeldingen går via en funksjon hos Supabase (servere i Stockholm), som sender opplysningene videre til Buttondown
+      uten å lagre dem.
+    </p>
+    <p>
+      Du får en e-post med en lenke du må klikke for å bekrefte påmeldingen. Uten bekreftelse får du ingenting mer.
+    </p>
+
+    <h2>Melde seg av og få innsyn</h2>
+    <p>
+      Hver e-post har en lenke for å melde seg av, og da slutter utsendelsene med en gang. Vil du vite hva som er lagret
+      om deg, eller ha det slettet, kan du svare på en av e-postene fra nyhetsbrevet.
+    </p>
+
+    <h2>Nettsiden</h2>
+    <p>
+      Nettsiden bruker ingen sporingsverktøy, annonser eller informasjonskapsler for statistikk. Skrifttypene ligger på
+      selve siden, så ingen opplysninger sendes til tredjeparter når du leser.
+    </p>
+    <p>
+      Nettleseren din husker om du har meldt deg på eller lukket påmeldingsvinduet, slik at det ikke dukker opp igjen
+      med en gang. Dette lagres bare hos deg, ikke hos meg.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .personvern { padding-top: 2.5rem; max-width: calc(var(--measure) + 2.5rem); margin-left: max(0px, calc((100vw - var(--wrap)) / 2)); }
+  h1 { font-size: clamp(2.5rem, 7vw, 4rem); margin-bottom: 0.75rem; }
+  .ingress { font-size: 1.2rem; color: var(--ink-2); }
+  h2 { font-size: 1.6rem; margin: 2rem 0 0.6rem; }
+  p { max-width: var(--measure); font-size: 1.08rem; }
+</style>

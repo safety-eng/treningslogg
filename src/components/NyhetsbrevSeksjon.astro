@@ -1,0 +1,27 @@
+---
+import NyhetsbrevSkjema from './NyhetsbrevSkjema.astro';
+import { nyhetsbrev } from '../data/profil.mjs';
+---
+<section class="wrap nyhetsbrev" id="nyhetsbrev" aria-labelledby="nyhetsbrev-tittel">
+  <div class="boks uthulet">
+    <div class="intro">
+      <h2 id="nyhetsbrev-tittel">{nyhetsbrev.tittel}</h2>
+      <p>{nyhetsbrev.tekst}</p>
+    </div>
+    <NyhetsbrevSkjema id="nb-seksjon" />
+  </div>
+</section>
+
+<style>
+  .nyhetsbrev { padding-top: 1.5rem; }
+  .boks {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr);
+    gap: 1.25rem 2.5rem;
+    align-items: center;
+    padding: clamp(1.25rem, 3.5vw, 2rem) clamp(1.25rem, 3.5vw, 2.25rem);
+  }
+  h2 { font-size: clamp(1.6rem, 3.6vw, 2.1rem); margin-bottom: 0.4rem; }
+  .intro p { margin: 0; color: var(--ink-2); max-width: 38ch; }
+  @media (max-width: 900px) { .boks { grid-template-columns: 1fr; } }
+</style>

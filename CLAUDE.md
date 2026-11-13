@@ -60,7 +60,11 @@ Selve innlegget.
 - Felles beregninger (tempo, varighet, øvelsesnavn): `src/lib/okt-core.mjs`, som brukes av både siden og synken.
 - Forsiden: `Hero.astro` (bilde i `src/assets/`, tekst i `hero` i `src/data/profil.mjs`, parallax med CSS scroll-animasjoner), så `MalSeksjon.astro` (nåværende mål og tempolinjal).
   Skriv animasjoner med langformer (`animation-name`, `animation-timeline` …), ellers lager minifiseringen en ugyldig shorthand.
-- Rekkefølge på forsiden: Hero, MalSeksjon, «Siste innlegg» (3 kort), Dashboard.
+- Rekkefølge på forsiden: Hero, NyhetsbrevSeksjon, MalSeksjon, «Siste innlegg» (3 kort), Dashboard.
+- Nyhetsbrev (Buttondown): skjema i `NyhetsbrevSkjema.astro` (seksjon under hero + popup i `Base.astro`, logikk i `src/scripts/nyhetsbrev.ts`).
+  Påmelding går via Supabase-funksjonen `meld-pa` (dobbel bekreftelse hos Buttondown, ingenting lagres hos oss).
+  `synk-treningslogg` sender nye innlegg (siste 7 dager) som e-post og sporer dem i `nyhetsbrev_sendt`.
+  Begge krever secret `BUTTONDOWN_API_KEY` i Supabase. Personvernsiden: `src/pages/personvern.astro`.
 - Delingsbilder: `/og/<id>.jpg` per innlegg og `/og/forside.jpg`, laget ved bygg med satori + sharp i `src/lib/delingsbilde.ts`
   (fonter i `src/assets/fonts/`). Open Graph-taggene settes i `Base.astro` via `bilde`-prop.
 - Nedlastinger: `/data/okter.xlsx` (exceljs, ark: Økter, Styrke, Uker, Om dataene), `/data/okter.csv` og `/data/okter.json`, laget ved bygg i `src/pages/data/`.

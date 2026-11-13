@@ -4,6 +4,7 @@ import '@fontsource/barlow/500.css';
 import '@fontsource/barlow/600.css';
 import '../styles/global.css';
 import { profil } from '../data/profil.mjs';
+import NyhetsbrevPopup from '../components/NyhetsbrevPopup.astro';
 
 interface Props { tittel?: string; beskrivelse?: string; bilde?: string; type?: 'website' | 'article' }
 const { tittel, beskrivelse = profil.beskrivelse, bilde = '/og/forside.jpg', type = 'website' } = Astro.props;
@@ -48,10 +49,14 @@ const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
     <footer class="site-footer wrap">
       <hr class="lane" />
       <p>
+        <a href="/#nyhetsbrev">Få nye innlegg på e-post</a>. <a href="/personvern/">Personvern</a>.
+      </p>
+      <p>
         Dataene er åpne: last ned alle økter som <a href="/data/okter.xlsx" download="treningslogg.xlsx">Excel</a>,
         <a href="/data/okter.csv" download="treningslogg.csv">CSV</a> eller <a href="/data/okter.json" download="treningslogg.json">JSON</a>.
       </p>
     </footer>
+    <NyhetsbrevPopup />
   </body>
 </html>
 

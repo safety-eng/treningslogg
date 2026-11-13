@@ -1,0 +1,79 @@
+---
+// Påmeldingsskjema. Brukes både som seksjon under toppbildet og inne i popupen.
+import { nyhetsbrev } from '../data/profil.mjs';
+
+interface Props { id: string; kompakt?: boolean }
+const { id, kompakt = false } = Astro.props;
+---
+<form class:list={['nb-skjema', { kompakt }]} data-nyhetsbrev novalidate>
+  <label class="felt fornavn">
+    <span>Fornavn</span>
+    <input type="text" name="fornavn" id={`${id}-fornavn`} autocomplete="given-name" maxlength="60" required />
+  </label>
+  <label class="felt epost">
+    <span>E-post</span>
+    <input type="email" name="epost" id={`${id}-epost`} autocomplete="email" inputmode="email" required />
+  </label>
+  <label class="samtykke">
+    <input type="checkbox" name="samtykke" id={`${id}-samtykke`} required />
+    <span>{nyhetsbrev.samtykke} <a href="/personvern/">Les om personvern</a>.</span>
+  </label>
+  <button type="submit" class="send">Meld meg på</button>
+  <!-- Skjult felt som bare roboter fyller ut. -->
+  <label class="hp" aria-hidden="true">Nettside <input type="text" name="nettside" tabindex="-1" autocomplete="off" /></label>
+  <p class="melding" role="status" aria-live="polite"></p>
+</form>
+
+<style is:global>
+  /* Tabulatorrekkefølge: fornavn, e-post, samtykke, knapp. Rutenettet plasserer dem visuelt. */
+  .nb-skjema {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr auto;
+    grid-template-areas: 'fornavn epost send' 'samtykke samtykke samtykke' 'melding melding melding';
+    gap: 0.75rem 0.6rem;
+    align-items: end;
+  }
+  .nb-skjema .fornavn { grid-area: fornavn; }
+  .nb-skjema .epost { grid-area: epost; }
+  .nb-skjema .samtykke { grid-area: samtykke; }
+  .nb-skjema .send { grid-area: send; }
+  .nb-skjema .melding { grid-area: melding; }
+  .nb-skjema .felt { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.9rem; font-weight: 500; color: var(--ink-2); }
+  .nb-skjema input[type='text'], .nb-skjema input[type='email'] {
+    font: inherit; font-size: 1rem; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--axis); border-radius: 8px;
+    padding: 0.6rem 0.75rem; min-width: 0;
+  }
+  .nb-skjema input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .nb-skjema input[aria-invalid='true'] { border-color: var(--accent); }
+  .nb-skjema .send {
+    font: inherit; font-weight: 600; font-size: 1rem; cursor: pointer;
+    padding: 0.62rem 1.15rem; border-radius: 999px; border: 1px solid var(--ink);
+    background: var(--ink); color: var(--paper); white-space: nowrap;
+  }
+  .nb-skjema .send:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nb-skjema .send[disabled] { opacity: 0.6; cursor: progress; }
+  .nb-skjema .samtykke { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; color: var(--ink-2); line-height: 1.45; }
+  .nb-skjema .samtykke input { width: 1.1rem; height: 1.1rem; margin: 0.15rem 0 0; accent-color: var(--accent); flex: none; }
+  .nb-skjema .samtykke[data-feil='true'] span { color: var(--accent); }
+  .nb-skjema .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .nb-skjema .melding { margin: 0; font-size: 0.95rem; font-weight: 500; }
+  .nb-skjema .melding:empty { display: none; }
+  .nb-skjema .melding[data-type='feil'] { color: var(--accent); }
+  .nb-skjema .melding[data-type='ok'] { color: var(--ink); }
+  .nb-skjema.ferdig > :not(.melding) { display: none; }
+  .nb-skjema.ferdig .melding { font-size: 1.05rem; }
+
+  .nb-skjema.kompakt {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'fornavn' 'epost' 'samtykke' 'send' 'melding';
+  }
+  .nb-skjema.kompakt .send { justify-self: start; }
+  @media (max-width: 720px) {
+    .nb-skjema {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'fornavn' 'epost' 'samtykke' 'send' 'melding';
+    }
+    .nb-skjema .send { justify-self: start; }
+  }
+</style>

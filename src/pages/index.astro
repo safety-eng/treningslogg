@@ -4,6 +4,7 @@ import Hero from '../components/Hero.astro';
 import MalSeksjon from '../components/MalSeksjon.astro';
 import Dashboard from '../components/Dashboard.astro';
 import InnleggListe from '../components/InnleggListe.astro';
+import NyhetsbrevSeksjon from '../components/NyhetsbrevSeksjon.astro';
 import { hentOkter, hentInnlegg } from '../lib/data';
 import { mal } from '../data/profil.mjs';
 
@@ -14,6 +15,7 @@ const ANTALL = 3;
 ---
 <Base bilde="/og/forside.jpg">
   <Hero />
+  <NyhetsbrevSeksjon />
   <MalSeksjon okter={okter} planUke={planUke} />
 
   <section class="wrap siste" aria-labelledby="siste-tittel">
