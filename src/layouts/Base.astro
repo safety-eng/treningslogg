@@ -1,0 +1,65 @@
+---
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '../styles/global.css';
+import { profil } from '../data/profil.mjs';
+
+interface Props { tittel?: string; beskrivelse?: string }
+const { tittel, beskrivelse = profil.beskrivelse } = Astro.props;
+const fullTittel = tittel ? `${tittel} | ${profil.bloggnavn}` : profil.bloggnavn;
+---
+<!doctype html>
+<html lang="nb">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTittel}</title>
+    <meta name="description" content={beskrivelse} />
+    <meta property="og:title" content={fullTittel} />
+    <meta property="og:description" content={beskrivelse} />
+    <link rel="preload" href="/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/json" href="/data/okter.json" title="Alle økter som JSON" />
+  </head>
+  <body>
+    <header class="site-header wrap">
+      <a class="logo" href="/">{profil.bloggnavn}</a>
+      <nav aria-label="Hovedmeny">
+        <a href="/">Statistikk</a>
+        <a href="/okter/">Alle økter</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer wrap">
+      <hr class="lane" />
+      <p>
+        Dataene er åpne: <a href="/data/okter.json">last ned alle økter som JSON</a>.
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+  .logo {
+    font-family: var(--font-cond);
+    font-weight: 600;
+    font-size: 1.25rem;
+    text-decoration: none;
+  }
+  nav { display: flex; gap: 1.25rem; font-weight: 500; }
+  nav a { text-decoration: none; color: var(--ink-2); }
+  nav a:hover { color: var(--accent); }
+  .site-footer { margin-top: 4rem; padding-bottom: 2.5rem; color: var(--muted); font-size: 0.95rem; }
+  .site-footer p { margin-top: 1rem; }
+</style>

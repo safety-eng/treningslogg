@@ -1,0 +1,126 @@
+/* Barlow Condensed med rettet Ø/ø, se scripts/fiks-barlow-condensed.py */
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-500.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-600.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/barlow-condensed-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212;
+}
+
+:root {
+  color-scheme: light;
+  --paper: #f4f6f5;
+  --ink: #17212b;
+  --ink-2: #4a5562;
+  --muted: #727a85;
+  --rule: #d9dedc;
+  --axis: #bfc5c3;
+  --cell-empty: #e4e8e6;
+  --accent: #b23a24;          /* tartanbane-rød: brukes kun for målet */
+  --run: #2a78d6;
+  --strength: #eb6834;
+  --other: #1baf7a;
+  --seq-1: #b7d3f6;
+  --seq-2: #6da7ec;
+  --seq-3: #2a78d6;
+  --seq-4: #184f95;
+  --tooltip-bg: #17212b;
+  --tooltip-ink: #f4f6f5;
+
+  --font: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-cond: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  --measure: 68ch;
+  --wrap: 1080px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #161c22;
+    --ink: #eef1f0;
+    --ink-2: #bac2c6;
+    --muted: #8d959c;
+    --rule: #2a333b;
+    --axis: #3a444d;
+    --cell-empty: #222a32;
+    --accent: #ec7a62;
+    --run: #3987e5;
+    --strength: #d95926;
+    --other: #199e70;
+    --seq-1: #184f95;
+    --seq-2: #256abf;
+    --seq-3: #3987e5;
+    --seq-4: #86b6ef;
+    --tooltip-bg: #eef1f0;
+    --tooltip-ink: #161c22;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+h1, h2, h3 {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  margin: 0;
+}
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.3rem; }
+
+p { margin: 0 0 1em; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 1.25rem; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* Banelinjer: tynne doble streker som skiller seksjoner, som linjene på en løpebane. */
+.lane {
+  border: 0;
+  height: 5px;
+  margin: 0;
+  background:
+    linear-gradient(var(--rule), var(--rule)) top / 100% 1px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) bottom / 100% 1px no-repeat;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

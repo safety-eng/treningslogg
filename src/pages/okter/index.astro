@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import InnleggListe from '../../components/InnleggListe.astro';
+import { hentInnlegg } from '../../lib/data';
+
+const innlegg = await hentInnlegg();
+---
+<Base tittel="Alle økter">
+  <section class="wrap arkiv">
+    <h1>Alle økter</h1>
+    <p class="ingress">{innlegg.length} {innlegg.length === 1 ? 'innlegg' : 'innlegg'}, nyeste først.</p>
+    <InnleggListe innlegg={innlegg} />
+  </section>
+</Base>
+
+<style>
+  .arkiv { padding-top: 2.5rem; }
+  h1 { font-size: clamp(2.5rem, 7vw, 4rem); margin-bottom: 0.5rem; }
+  .ingress { color: var(--ink-2); margin-bottom: 1.5rem; }
+</style>

@@ -1,0 +1,137 @@
+---
+import { mal, referanse } from '../data/profil.mjs';
+import { parseVarighet, formatTempo, formatKlokke, riegel } from '../lib/okt-core.mjs';
+
+interface Okt { dato: string; type: string; kategori: string | null; km: number | null; sek: number | null; planUke: number | null }
+interface Props { okter: Okt[]; planUke: number | null }
+const { okter, planUke } = Astro.props;
+
+const malSek = parseVarighet(mal.tid)!;
+const malTempo = malSek / mal.distanse_km;
+const refSek = parseVarighet(referanse.tid)!;
+const refTempo = refSek / referanse.distanse_km;
+const prognose = riegel(refSek, referanse.distanse_km, mal.distanse_km);
+const differanse = Math.round(refTempo - malTempo);
+
+// Rolig tempo: snitt for rolige turer de siste 28 dagene før siste økt.
+const lop = okter.filter((o) => o.type === 'lop' && o.km && o.sek);
+const sisteDato = lop.at(-1)?.dato;
+let roligTempo: number | null = null;
+if (sisteDato) {
+  const grense = new Date(`${sisteDato}T00:00:00Z`);
+  grense.setUTCDate(grense.getUTCDate() - 27);
+  const fra = grense.toISOString().slice(0, 10);
+  const rolige = lop.filter((o) => o.dato >= fra && ['rolig', 'langtur', 'restitusjon'].includes(o.kategori ?? ''));
+  const km = rolige.reduce((s, o) => s + (o.km ?? 0), 0);
+  const sek = rolige.reduce((s, o) => s + (o.sek ?? 0), 0);
+  roligTempo = km > 0 ? sek / km : null;
+}
+
+// Skala: sakte til venstre, raskt til høyre (mot målet).
+const raskest = Math.min(malTempo - 15, 225);
+const tregest = Math.max(345, (roligTempo ?? 0) + 15);
+const x = (t: number) => ((tregest - t) / (tregest - raskest)) * 100;
+const ticks: number[] = [];
+for (let t = Math.ceil(raskest / 15) * 15; t <= tregest; t += 15) ticks.push(t);
+---
+<section class="hero wrap" aria-labelledby="mal-tittel">
+  <h1 id="mal-tittel">{mal.tittel}</h1>
+  <p class="ingress">
+    Etter {referanse.navn} på {referanse.tid} trener jeg systematisk i {mal.uker} uker mot en 10 km.{' '}
+    {planUke && <strong>Nå er jeg i uke {planUke} av {mal.uker}.</strong>}
+  </p>
+
+  <figure class="linjal" aria-label={`Tempo i minutter per kilometer. Mål ${formatTempo(malTempo)}, halvmaraton ${formatTempo(refTempo)}${roligTempo ? `, rolig snitt ${formatTempo(roligTempo)}` : ''}.`}>
+    <div class="rad over">
+      {roligTempo && (
+        <span class={`merke-tekst ${x(roligTempo) < 50 ? 'venstre' : 'hoyre'}`} style={`left:${x(roligTempo)}%`}>
+          Rolig snitt <b class="num">{formatTempo(roligTempo)}</b>
+        </span>
+      )}
+      <span class="merke-tekst hoyre mal" style={`left:${x(malTempo)}%`}>
+        Mål <b class="num">{formatTempo(malTempo)}</b>
+      </span>
+    </div>
+    <div class="bane">
+      <span class="gap" style={`left:${x(refTempo)}%; width:${x(malTempo) - x(refTempo)}%`}></span>
+      {roligTempo && <span class="prikk rolig" style={`left:${x(roligTempo)}%`}></span>}
+      <span class="prikk ref" style={`left:${x(refTempo)}%`}></span>
+      <span class="malstrek" style={`left:${x(malTempo)}%`}></span>
+    </div>
+    <div class="rad ticks" aria-hidden="true">
+      {ticks.map((t) => (
+        <span class="tick" style={`left:${x(t)}%`}>{t % 30 === 0 ? formatTempo(t) : ''}</span>
+      ))}
+    </div>
+    <div class="rad under">
+      <span class="merke-tekst hoyre" style={`left:${x(refTempo)}%`}>
+        Halvmaraton <b class="num">{formatTempo(refTempo)}</b>
+      </span>
+    </div>
+    <figcaption>
+      Tempo i min/km, raskere mot høyre. Rolig snitt gjelder de siste fire ukene. Fra halvmaratontempo til måltempo er det {differanse} sekunder per km.
+      Etter Riegels formel tilsvarer {referanse.tid} på halvmaraton omtrent {formatKlokke(prognose)} på 10 km.
+    </figcaption>
+  </figure>
+</section>
+
+<style>
+  .hero { padding-top: 2.5rem; padding-bottom: 3rem; }
+  h1 {
+    font-family: var(--font-cond);
+    font-weight: 700;
+    font-size: clamp(3.25rem, 11vw, 7.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.25rem;
+  }
+  .ingress { max-width: 52ch; font-size: 1.2rem; color: var(--ink-2); }
+  .ingress strong { color: var(--ink); font-weight: 600; }
+
+  .linjal { margin: 2.5rem 0 0; position: relative; }
+  .rad { position: relative; height: 1.6rem; }
+  .rad.over { height: 1.9rem; }
+  .rad.under { height: 1.8rem; margin-top: 0.15rem; }
+  .merke-tekst {
+    position: absolute; bottom: 0.35rem; white-space: nowrap;
+    font-size: 0.95rem; color: var(--ink-2);
+  }
+  .rad.under .merke-tekst { top: 0.2rem; bottom: auto; }
+  .merke-tekst b { color: var(--ink); font-weight: 600; }
+  .merke-tekst.venstre { transform: translateX(-0.4rem); }
+  .merke-tekst.hoyre { transform: translateX(calc(-100% + 0.4rem)); }
+  .merke-tekst.mal, .merke-tekst.mal b { color: var(--accent); font-weight: 600; }
+
+  .bane { position: relative; height: 14px; }
+  .bane::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 6px; height: 2px;
+    background: var(--axis); border-radius: 1px;
+  }
+  .gap {
+    position: absolute; top: 5px; height: 4px; border-radius: 2px;
+    background: var(--accent); opacity: 0.35;
+  }
+  .prikk {
+    position: absolute; top: 1px; width: 12px; height: 12px; margin-left: -6px;
+    border-radius: 50%; box-shadow: 0 0 0 2px var(--paper);
+  }
+  .prikk.rolig { background: var(--run); }
+  .prikk.ref { background: var(--ink-2); }
+  .malstrek {
+    position: absolute; top: -10px; width: 3px; height: 30px; margin-left: -1.5px;
+    background: var(--accent); border-radius: 2px;
+  }
+  .rad.ticks { height: 1.5rem; border-top: 0; }
+  .tick {
+    position: absolute; top: 0; transform: translateX(-50%);
+    font-size: 0.8rem; color: var(--muted); padding-top: 0.45rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .tick::before {
+    content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 5px; background: var(--axis);
+  }
+  .rad.under .merke-tekst::after {
+    content: ''; position: absolute; right: 0.4rem; top: -0.9rem; width: 1px; height: 0.8rem; background: var(--ink-2);
+  }
+  figcaption { margin-top: 1.25rem; max-width: 62ch; color: var(--muted); font-size: 0.95rem; }
+</style>

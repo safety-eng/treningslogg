@@ -1,0 +1,182 @@
+---
+interface Props { okter: unknown[] }
+const { okter } = Astro.props;
+// Escaper "<" så JSON-en ikke kan lukke script-taggen.
+const json = JSON.stringify(okter).replace(/</g, '\\u003c');
+---
+<section class="dash wrap" aria-labelledby="dash-tittel">
+  <h2 id="dash-tittel">Statistikk</h2>
+
+  <form class="filtre" id="filtre" aria-label="Filtrer statistikken">
+    <fieldset class="segment" aria-label="Periode">
+      <legend class="visually-hidden">Periode</legend>
+      <label><input type="radio" name="periode" value="alle" checked /><span>Alt</span></label>
+      <label><input type="radio" name="periode" value="7d" /><span>7 dager</span></label>
+      <label><input type="radio" name="periode" value="30d" /><span>30 dager</span></label>
+      <label><input type="radio" name="periode" value="ar" /><span>I år</span></label>
+      <label><input type="radio" name="periode" value="maned" /><span>Måned</span></label>
+      <label><input type="radio" name="periode" value="egen" /><span>Egen periode</span></label>
+    </fieldset>
+
+    <div class="ekstra" id="velg-maned" hidden>
+      <label for="maned">Måned</label>
+      <select id="maned" name="maned"></select>
+    </div>
+    <div class="ekstra" id="velg-egen" hidden>
+      <label for="fra">Fra</label>
+      <input type="date" id="fra" name="fra" />
+      <label for="til">til</label>
+      <input type="date" id="til" name="til" />
+    </div>
+
+    <fieldset class="segment" aria-label="Type trening">
+      <legend class="visually-hidden">Type trening</legend>
+      <label><input type="radio" name="type" value="alle" checked /><span>Alle typer</span></label>
+      <label><input type="radio" name="type" value="lop" /><span><i class="nokkel lop"></i>Løp</span></label>
+      <label><input type="radio" name="type" value="styrke" /><span><i class="nokkel styrke"></i>Styrke</span></label>
+      <label><input type="radio" name="type" value="annet" /><span><i class="nokkel annet"></i>Annet</span></label>
+    </fieldset>
+  </form>
+
+  <p class="periode-tekst" id="periode-tekst" aria-live="polite"></p>
+
+  <dl class="tall" id="tall">
+    <div class="ledende"><dt>Kilometer løpt</dt><dd data-felt="km">–</dd></div>
+    <div><dt>Økter</dt><dd data-felt="okter">–</dd></div>
+    <div><dt>Løpeturer</dt><dd data-felt="lop">–</dd></div>
+    <div><dt>Styrkeøkter</dt><dd data-felt="styrke">–</dd></div>
+    <div><dt>Treningstid</dt><dd data-felt="tid">–</dd></div>
+    <div><dt>Snittempo løp</dt><dd data-felt="tempo">–</dd></div>
+  </dl>
+
+  <div class="diagrammer">
+    <figure class="diagram" id="uker">
+      <figcaption><h3 id="uker-tittel">Kilometer per uke</h3></figcaption>
+      <div class="plott" id="uker-plott"></div>
+    </figure>
+    <figure class="diagram" id="kalender">
+      <figcaption>
+        <h3>Treningskalender</h3>
+        <span class="skala" aria-hidden="true">
+          Mindre <i style="background:var(--cell-empty)"></i><i style="background:var(--seq-1)"></i><i style="background:var(--seq-2)"></i><i style="background:var(--seq-3)"></i><i style="background:var(--seq-4)"></i> Mer tid
+        </span>
+      </figcaption>
+      <div class="plott" id="kalender-plott"></div>
+    </figure>
+  </div>
+
+  <section class="tabell-seksjon" aria-labelledby="tabell-tittel">
+    <h3 id="tabell-tittel">Økter i perioden</h3>
+    <div class="tabell-rull">
+      <table id="tabell">
+        <thead>
+          <tr><th scope="col">Dato</th><th scope="col">Økt</th><th scope="col">Type</th><th scope="col" class="h">Distanse</th><th scope="col" class="h">Tid</th><th scope="col" class="h">Tempo</th><th scope="col">Opplevd</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="tom" id="tom" hidden>Ingen økter i denne perioden. Velg en lengre periode eller en annen type.</p>
+  </section>
+
+  <section class="styrke-seksjon" id="styrke-seksjon" aria-labelledby="styrke-tittel" hidden>
+    <h3 id="styrke-tittel">Styrke per øvelse</h3>
+    <div class="tabell-rull">
+      <table id="styrke-tabell">
+        <thead><tr><th scope="col">Øvelse</th><th scope="col" class="h">Sett</th><th scope="col" class="h">Tyngste sett</th><th scope="col" class="h">Volum</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="tooltip" id="tooltip" role="status" hidden></div>
+  <script type="application/json" id="okter-data" set:html={json}></script>
+</section>
+
+<script>
+  import { startDashboard } from '../scripts/dashboard';
+  startDashboard();
+</script>
+
+<style is:global>
+  .dash { padding-top: 2.5rem; }
+  .dash h2 { margin-bottom: 1.25rem; }
+
+  .dash .filtre { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+  .dash .segment { display: inline-flex; flex-wrap: wrap; gap: 0.25rem; border: 0; padding: 0; margin: 0; }
+  .dash .segment label { position: relative; cursor: pointer; }
+  .dash .segment input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .dash .segment span {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.75rem; border-radius: 999px;
+    border: 1px solid var(--rule); color: var(--ink-2); font-weight: 500; font-size: 0.95rem;
+    background: transparent;
+  }
+  .dash .segment label:hover span { border-color: var(--axis); color: var(--ink); }
+  .dash .segment input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .dash .segment input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dash .nokkel { display: inline-block; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 2px var(--paper); }
+  .dash .nokkel.lop { background: var(--run); }
+  .dash .nokkel.styrke { background: var(--strength); }
+  .dash .nokkel.annet { background: var(--other); }
+
+  .dash .ekstra { display: inline-flex; gap: 0.5rem; align-items: center; color: var(--ink-2); font-size: 0.95rem; }
+  .dash .ekstra[hidden] { display: none; }
+  .dash select, .dash input[type='date'] {
+    font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--rule); border-radius: 6px; padding: 0.3rem 0.5rem;
+  }
+
+  .dash .periode-tekst { margin: 1rem 0 0; color: var(--muted); font-size: 0.95rem; }
+
+  .dash .tall {
+    display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin: 1.5rem 0 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  }
+  .dash .tall > div { padding: 1rem 1rem 1.1rem; border-left: 1px solid var(--rule); }
+  .dash .tall > div:first-child { border-left: 0; padding-left: 0; }
+  .dash .tall dt { color: var(--ink-2); font-size: 0.95rem; font-weight: 500; }
+  .dash .tall dd { margin: 0.2rem 0 0; font-family: var(--font-cond); font-weight: 600; font-size: 2.25rem; line-height: 1.05; }
+  .dash .tall .ledende dd { font-size: 3.25rem; }
+
+  .dash .diagrammer { display: grid; grid-template-columns: 3fr 2fr; gap: 2.5rem; margin-top: 2.5rem; }
+  .dash .diagram { margin: 0; min-width: 0; }
+  .dash .diagram figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.75rem; }
+  .dash .skala { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); font-size: 0.85rem; }
+  .dash .skala i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; }
+  .dash .plott { position: relative; min-height: 200px; }
+
+  .dash .tabell-seksjon, .dash .styrke-seksjon { margin-top: 2.75rem; }
+  .dash .tabell-seksjon h3, .dash .styrke-seksjon h3 { margin-bottom: 0.75rem; }
+  .dash .tabell-rull { overflow-x: auto; }
+  .dash table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 0.98rem; }
+  .dash #styrke-tabell { min-width: 420px; }
+  .dash td.dato { white-space: nowrap; }
+  .dash th { text-align: left; font-weight: 500; color: var(--muted); padding: 0.5rem 0.75rem 0.5rem 0; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+  .dash td { padding: 0.6rem 0.75rem 0.6rem 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+  .dash th.h, .dash td.h { text-align: right; font-variant-numeric: tabular-nums; }
+  .dash td.h { white-space: nowrap; }
+  .dash .tom { color: var(--ink-2); margin-top: 1rem; }
+
+  .dash .tooltip {
+    position: fixed; z-index: 10; pointer-events: none;
+    background: var(--tooltip-bg); color: var(--tooltip-ink);
+    padding: 0.45rem 0.65rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.35;
+    max-width: 240px;
+  }
+  .dash .tooltip[hidden] { display: none; }
+
+  @media (max-width: 860px) {
+    .dash .tall { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dash .tall > div:nth-child(4) { border-left: 0; padding-left: 0; }
+    .dash .tall > div:nth-child(n + 4) { border-top: 1px solid var(--rule); }
+    .dash .diagrammer { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .dash .tall { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dash .tall > div:nth-child(4) { border-left: 1px solid var(--rule); padding-left: 1rem; }
+    .dash .tall > div:nth-child(odd) { border-left: 0; padding-left: 0; }
+    .dash .tall > div:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+    .dash .tall .ledende dd { font-size: 2.75rem; }
+  }
+
+</style>

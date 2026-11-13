@@ -1,0 +1,100 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatDato } from '../../lib/data';
+import { parseVarighet, formatKlokke, formatTempo, normaliserOvelse, TYPE_NAVN, KATEGORI_NAVN } from '../../lib/okt-core.mjs';
+
+export async function getStaticPaths() {
+  const alle = (await getCollection('okter')).sort((a, b) => (a.data.dato < b.data.dato ? -1 : 1));
+  return alle.map((entry, i) => ({
+    params: { id: entry.id },
+    props: { entry, forrige: alle[i - 1] ?? null, neste: alle[i + 1] ?? null },
+  }));
+}
+
+const { entry, forrige, neste } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const tall = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 2 });
+const stor = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const okter = d.okter.map((o: any) => {
+  const sek = parseVarighet(o.varighet);
+  const tall_: { navn: string; verdi: string }[] = [];
+  if (o.distanse_km) tall_.push({ navn: 'Distanse', verdi: `${tall.format(o.distanse_km)} km` });
+  if (sek) tall_.push({ navn: 'Tid', verdi: formatKlokke(sek) });
+  if (o.type === 'lop' && sek) tall_.push({ navn: 'Snittempo', verdi: `${formatTempo(sek / o.distanse_km)} /km` });
+  if (o.opplevd) tall_.push({ navn: 'Opplevd', verdi: stor(o.opplevd) });
+  const navn = o.type === 'lop' ? `${TYPE_NAVN.lop}, ${(KATEGORI_NAVN as any)[o.kategori].toLowerCase()}` : o.type === 'annet' ? stor(o.aktivitet) : TYPE_NAVN.styrke;
+  return { ...o, navn, tall: tall_ };
+});
+const sammendrag = okter.map((o: any) => `${o.navn}: ${o.tall.map((t: any) => t.verdi).join(', ')}`).join('. ');
+---
+<Base tittel={d.tittel} beskrivelse={sammendrag}>
+  <article class="wrap innlegg">
+    <p class="meta">
+      <a href="/okter/">Alle økter</a>
+      <span aria-hidden="true">/</span>
+      <time datetime={d.dato}>{formatDato(d.dato)}{d.klokkeslett && `, kl. ${d.klokkeslett}`}</time>
+      {d.plan && <span>Uke {d.plan.uke} i «{d.plan.navn}»</span>}
+    </p>
+    <h1>{d.tittel}</h1>
+
+    {okter.map((o: any) => (
+      <section class={`okt ${o.type}`}>
+        <h2><i class={`nokkel ${o.type}`} aria-hidden="true"></i>{o.navn}</h2>
+        {o.tall.length > 0 && (
+          <dl class="okt-tall">
+            {o.tall.map((t: any) => (<div><dt>{t.navn}</dt><dd>{t.verdi}</dd></div>))}
+          </dl>
+        )}
+        {o.planlagt && <p class="plan">Plan: {o.planlagt}</p>}
+        {o.type === 'styrke' && (
+          <table>
+            <thead><tr><th scope="col">Øvelse</th><th scope="col">Sett</th></tr></thead>
+            <tbody>
+              {o.ovelser.map((ov: any) => (
+                <tr>
+                  <td>{stor(normaliserOvelse(ov.navn))}</td>
+                  <td class="num">{ov.sett.map((s: any) => (s.kg != null ? `${tall.format(s.kg)} kg × ${s.reps}` : `${s.reps} reps`)).join(', ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+    ))}
+
+    <div class="tekst"><Content /></div>
+
+    {(forrige || neste) && <nav class="bla" aria-label="Andre innlegg">
+      {forrige ? <a href={`/okter/${forrige.id}/`} rel="prev"><span>Forrige</span>{forrige.data.tittel}</a> : <span></span>}
+      {neste && <a href={`/okter/${neste.id}/`} rel="next" class="neste"><span>Neste</span>{neste.data.tittel}</a>}
+    </nav>}
+  </article>
+</Base>
+
+<style>
+  .innlegg { padding-top: 2.5rem; max-width: calc(var(--measure) + 2.5rem); margin-left: max(0px, calc((100vw - var(--wrap)) / 2)); }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; color: var(--muted); font-size: 0.95rem; }
+  .meta a { color: var(--ink-2); }
+  h1 { font-size: clamp(2.5rem, 7vw, 4.25rem); line-height: 0.98; margin: 0.75rem 0 2rem; }
+  .okt { border-top: 1px solid var(--rule); padding: 1.25rem 0 0.5rem; }
+  .okt h2 { font-size: 1.35rem; display: flex; align-items: center; gap: 0.55rem; }
+  .nokkel { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .nokkel.lop { background: var(--run); }
+  .nokkel.styrke { background: var(--strength); }
+  .nokkel.annet { background: var(--other); }
+  .okt-tall { display: flex; flex-wrap: wrap; gap: 0.75rem 2.25rem; margin: 1rem 0; }
+  .okt-tall dt { color: var(--ink-2); font-size: 0.95rem; }
+  .okt-tall dd { margin: 0; font-family: var(--font-cond); font-weight: 600; font-size: 2.1rem; line-height: 1.1; }
+  .plan { color: var(--muted); font-size: 0.95rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
+  th { text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--axis); padding: 0.4rem 1rem 0.4rem 0; }
+  td { border-bottom: 1px solid var(--rule); padding: 0.5rem 1rem 0.5rem 0; }
+  .tekst { margin-top: 1.5rem; font-size: 1.125rem; max-width: var(--measure); }
+  .bla { display: flex; justify-content: space-between; gap: 1.5rem; margin-top: 3rem; border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+  .bla a { text-decoration: none; display: flex; flex-direction: column; font-family: var(--font-cond); font-weight: 600; font-size: 1.2rem; }
+  .bla a span { font-family: var(--font); font-weight: 500; font-size: 0.9rem; color: var(--muted); }
+  .bla .neste { text-align: right; margin-left: auto; }
+</style>

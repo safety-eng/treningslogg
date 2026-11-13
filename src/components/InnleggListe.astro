@@ -1,0 +1,52 @@
+---
+import { formatDato } from '../lib/data';
+import { parseVarighet, formatKlokke, formatTempo, TYPE_NAVN } from '../lib/okt-core.mjs';
+
+type Innlegg = { id: string; data: any };
+interface Props {
+  innlegg: Innlegg[];
+}
+const { innlegg } = Astro.props;
+
+function sammendrag(okter: any[]) {
+  return okter.map((o) => {
+    const sek = parseVarighet(o.varighet);
+    if (o.type === 'lop') return `${String(o.distanse_km).replace('.', ',')} km på ${formatKlokke(sek)} (${formatTempo((sek ?? 0) / o.distanse_km)} /km)`;
+    if (o.type === 'styrke') return `Styrke, ${o.ovelser.length} ${o.ovelser.length === 1 ? 'øvelse' : 'øvelser'}`;
+    return `${o.aktivitet.charAt(0).toUpperCase()}${o.aktivitet.slice(1)}${sek ? `, ${formatKlokke(sek)}` : ''}`;
+  });
+}
+---
+<ol class="innlegg-liste" reversed>
+  {innlegg.map((i) => (
+    <li>
+      <time datetime={i.data.dato}>{formatDato(i.data.dato)}</time>
+      <div>
+        <a href={`/okter/${i.id}/`} class="tittel">{i.data.tittel}</a>
+        <p class="sammendrag">
+          {sammendrag(i.data.okter).map((s, n) => (
+            <span><i class={`nokkel ${i.data.okter[n].type}`} aria-hidden="true"></i>{s}</span>
+          ))}
+        </p>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .innlegg-liste { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid; grid-template-columns: 10rem 1fr; gap: 0.25rem 1.5rem;
+    padding: 1rem 0; border-bottom: 1px solid var(--rule);
+  }
+  time { color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
+  .tittel { font-family: var(--font-cond); font-weight: 600; font-size: 1.45rem; text-decoration: none; line-height: 1.15; }
+  .tittel:hover { text-decoration: underline; }
+  .sammendrag { margin: 0.3rem 0 0; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
+  .sammendrag span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .nokkel { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .nokkel.lop { background: var(--run); }
+  .nokkel.styrke { background: var(--strength); }
+  .nokkel.annet { background: var(--other); }
+  @media (max-width: 560px) { li { grid-template-columns: 1fr; } }
+</style>

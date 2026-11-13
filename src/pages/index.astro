@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import MalHero from '../components/MalHero.astro';
+import Dashboard from '../components/Dashboard.astro';
+import InnleggListe from '../components/InnleggListe.astro';
+import { hentOkter, hentInnlegg } from '../lib/data';
+import { mal } from '../data/profil.mjs';
+
+const okter = await hentOkter();
+const innlegg = await hentInnlegg();
+const planUke = innlegg.find((i) => i.data.plan?.navn === mal.planNavn)?.data.plan?.uke ?? null;
+---
+<Base>
+  <MalHero okter={okter} planUke={planUke} />
+  <div class="wrap"><hr class="lane" /></div>
+  <Dashboard okter={okter} />
+  <div class="wrap siste">
+    <hr class="lane" />
+    <h2>Siste innlegg</h2>
+    <InnleggListe innlegg={innlegg.slice(0, 6)} />
+    {innlegg.length > 6 && <p><a href="/okter/">Se alle {innlegg.length} innlegg</a></p>}
+  </div>
+</Base>
+
+<style>
+  .siste { margin-top: 3.5rem; }
+  .siste h2 { margin: 2.5rem 0 1rem; }
+</style>

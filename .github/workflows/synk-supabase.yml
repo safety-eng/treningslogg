@@ -1,0 +1,33 @@
+name: Synk til Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/okter/**'
+      - 'src/lib/okt-core.mjs'
+      - 'scripts/sync-supabase.mjs'
+  workflow_dispatch:
+  # Holder gratisprosjektet aktivt i perioder uten nye økter (Supabase pauser etter en uke).
+  schedule:
+    - cron: '23 5 */3 * *'
+
+concurrency:
+  group: synk-supabase
+  cancel-in-progress: false
+
+jobs:
+  synk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Bygget validerer alle økt-filene mot skjemaet før noe skrives til databasen.
+      - run: npm run build
+      - run: npm run synk
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
