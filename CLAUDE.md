@@ -1,6 +1,6 @@
 # Instruksjoner for Claude: Fredriks treningslogg
 
-Åpen treningsblogg. Fredrik sender et bilde av en økt (skjermbilde fra klokke/app eller håndskrevet logg) og en kommentar. Du lager et innlegg, sjekker tallene med ham og pusher til `main`. Vercel bygger siden, og GitHub Action `synk-supabase.yml` speiler dataene til Supabase.
+Åpen treningsblogg. Fredrik sender et bilde av en økt (skjermbilde fra klokke/app eller håndskrevet logg) og en kommentar. Du lager et innlegg, sjekker tallene med ham og pusher til `main`. Vercel bygger siden (https://treningslogg-plum.vercel.app). GitHub Action `synk-supabase.yml` venter på publiseringen og kaller Supabase-funksjonen `synk-treningslogg`, som henter `/data/synk.json` og skriver til databasen. Ingen hemmeligheter i GitHub.
 
 ## Arbeidsflyt for en ny økt
 
@@ -60,6 +60,7 @@ Selve innlegget.
 - Felles beregninger (tempo, varighet, øvelsesnavn): `src/lib/okt-core.mjs`, som brukes av både siden og synken.
 - Dashbordet: `src/components/Dashboard.astro` + `src/scripts/dashboard.ts`. Filtrene lagres i URL-en.
 - Supabase-prosjekt: `treningslogg` (ref `mtjwkcunpjgvagptuiet`, eu-north-1). Skjema: `supabase/migrations/`.
-  Tabeller: `innlegg`, `okter`, `ovelser`, `sett`, og visningene `ukesoversikt` og `tyngste_sett`.
+  Tabeller: `innlegg`, `okter`, `ovelser`, `sett`, `synk_status`, og visningene `ukesoversikt` og `tyngste_sett`.
+  Etter en push kan du sjekke synken med `select * from synk_status` (commit skal være den nye).
 - Barlow Condensed ligger selv-hostet i `public/fonts/` med rettet Ø/ø (se `scripts/fiks-barlow-condensed.py`).
 - Uten Astro-kompilatorens feil: ikke skriv `x! / y` i frontmatter i .astro-filer (tolkes som regex). Bruk `(x ?? 0) / y`.

@@ -1,12 +1,13 @@
 name: Synk til Supabase
 
+# Ingen hemmeligheter trengs: Supabase-funksjonen henter de åpne dataene fra nettsiden selv.
 on:
   push:
     branches: [main]
     paths:
       - 'src/content/okter/**'
       - 'src/lib/okt-core.mjs'
-      - 'scripts/sync-supabase.mjs'
+      - 'src/pages/data/**'
   workflow_dispatch:
   # Holder gratisprosjektet aktivt i perioder uten nye økter (Supabase pauser etter en uke).
   schedule:
@@ -16,18 +17,26 @@ concurrency:
   group: synk-supabase
   cancel-in-progress: false
 
+env:
+  SIDE: https://treningslogg-plum.vercel.app
+  FUNKSJON: https://mtjwkcunpjgvagptuiet.supabase.co/functions/v1/synk-treningslogg
+
 jobs:
   synk:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      # Bygget validerer alle økt-filene mot skjemaet før noe skrives til databasen.
-      - run: npm run build
-      - run: npm run synk
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Vent til Vercel har publisert denne commiten
+        if: github.event_name == 'push'
+        run: |
+          for i in $(seq 1 40); do
+            commit=$(curl -fsS -H 'Cache-Control: no-cache' "$SIDE/data/synk.json" | jq -r '.commit' || true)
+            if [ "$commit" = "$GITHUB_SHA" ]; then echo "Publisert."; exit 0; fi
+            sleep 15
+          done
+          echo "Fant ikke commiten på nettsiden etter 10 minutter. Synker det som ligger ute nå."
+      - name: Synk
+        run: |
+          svar=$(curl -fsS -X POST -H 'Content-Type: application/json' -d '{}' "$FUNKSJON")
+          echo "$svar"
+          echo "$svar" | jq -e '.ok' > /dev/null

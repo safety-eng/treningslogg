@@ -6,11 +6,12 @@
 
 ```
 Bilde + kommentar → Claude → GitHub (main)
-                               ├─ Vercel bygger og publiserer siden
-                               └─ GitHub Action speiler dataene til Supabase
+                               ├─ Vercel bygger og publiserer siden (treningslogg-plum.vercel.app)
+                               └─ GitHub Action venter på publiseringen og kaller Supabase-funksjonen
+                                    synk-treningslogg, som henter /data/synk.json og skriver til databasen
 ```
 
-Repoet er fasiten. Databasen er en kopi som kan bygges opp på nytt når som helst (`npm run synk`).
+Repoet er fasiten. Databasen er en kopi som bygges opp på nytt fra nettsiden. Ingen passord eller nøkler ligger i GitHub. Supabase-funksjonen bruker sin innebygde databasetilgang, og pg_cron kjører den også hver time som sikkerhetsnett.
 
 ## Kommandoer
 
@@ -18,20 +19,19 @@ Repoet er fasiten. Databasen er en kopi som kan bygges opp på nytt når som hel
 |---|---|
 | `npm run dev` | Lokal utviklingsserver |
 | `npm run build` | Bygger siden og validerer alle økt-filene |
-| `npm run synk` | Speiler økter til Supabase (krever `DATABASE_URL`) |
+| `npm run synk` | Manuell synk direkte til databasen (krever `DATABASE_URL`, trengs vanligvis ikke) |
 | `node scripts/sync-supabase.mjs --sql` | Skriver synken som SQL i stedet for å kjøre den |
 
-## Oppsett av Supabase-synken
+## Supabase
 
-1. Supabase → prosjektet `treningslogg` → **Connect** → kopier **Session pooler**-adressen (IPv4). Bytt `[YOUR-PASSWORD]` med databasepassordet. Er det glemt, kan det nullstilles under Database settings.
-2. GitHub → repoet → Settings → Secrets and variables → Actions → **New repository secret**. Navn: `DATABASE_URL`, verdi: adressen fra steg 1.
-3. Kjør workflowen **Synk til Supabase** én gang manuelt for å teste.
-
-Uten secret hopper workflowen over synken uten å feile.
+- Prosjekt: `treningslogg` (ref `mtjwkcunpjgvagptuiet`, Stockholm)
+- Funksjon: `supabase/functions/synk-treningslogg/` (synker bare hvis bygget er nytt, se tabellen `synk_status`)
+- Kjør synken manuelt: GitHub → Actions → **Synk til Supabase** → Run workflow
 
 ## Åpne data
 
 - `/data/okter.json`: alle økter som JSON
+- `/data/synk.json`: alle tabellradene, slik Supabase lagrer dem
 - Supabase-tabellene kan leses av alle via API-et (kun lesing)
 
 ## Nyttige SQL-spørringer
