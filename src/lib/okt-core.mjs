@@ -133,6 +133,59 @@ export function lagRader(innlegg) {
 }
 
 export const TYPE_NAVN = { lop: 'Løp', styrke: 'Styrke', annet: 'Annet' };
+
+// ---------- eksport (CSV på nettsiden og i dashbordet, samme kolonner som Excel) ----------
+export const EKSPORT_KOLONNER = [
+  ['dato', 'Dato'],
+  ['tittel', 'Innlegg'],
+  ['type', 'Type'],
+  ['kategori', 'Kategori'],
+  ['aktivitet', 'Aktivitet'],
+  ['distanse_km', 'Distanse (km)'],
+  ['tid', 'Tid'],
+  ['tid_sek', 'Tid (sekunder)'],
+  ['tempo', 'Tempo (min/km)'],
+  ['tempo_sek_per_km', 'Tempo (sek/km)'],
+  ['opplevd', 'Opplevd'],
+  ['planlagt', 'Planlagt'],
+  ['plan_uke', 'Uke i plan'],
+  ['lenke', 'Lenke'],
+];
+
+/** Én eksportrad per økt. site: nettstedets adresse uten skråstrek til slutt. */
+export function eksportRad(o, site = '') {
+  return {
+    dato: o.dato,
+    tittel: o.tittel,
+    type: TYPE_NAVN[o.type] ?? o.type,
+    kategori: o.kategori ? (KATEGORI_NAVN[o.kategori] ?? o.kategori) : '',
+    aktivitet: o.aktivitet ? o.aktivitet.charAt(0).toUpperCase() + o.aktivitet.slice(1) : '',
+    distanse_km: o.km ?? '',
+    tid: o.sek != null ? formatKlokke(o.sek) : '',
+    tid_sek: o.sek ?? '',
+    tempo: o.tempo != null ? formatTempo(o.tempo) : '',
+    tempo_sek_per_km: o.tempo != null ? Math.round(o.tempo * 10) / 10 : '',
+    opplevd: o.opplevd ? o.opplevd.charAt(0).toUpperCase() + o.opplevd.slice(1) : '',
+    planlagt: o.planlagt ?? '',
+    plan_uke: o.planUke ?? '',
+    lenke: `${site}/okter/${o.innlegg}/`,
+  };
+}
+
+function csvFelt(v) {
+  const t = String(v ?? '');
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+}
+
+/** CSV med komma som skilletegn og punktum som desimaltegn (standardformat). */
+export function somCsv(okter, site = '') {
+  const linjer = [EKSPORT_KOLONNER.map(([, navn]) => csvFelt(navn)).join(',')];
+  for (const o of okter) {
+    const rad = eksportRad(o, site);
+    linjer.push(EKSPORT_KOLONNER.map(([n]) => csvFelt(rad[n])).join(','));
+  }
+  return '﻿' + linjer.join('\r\n') + '\r\n';
+}
 export const KATEGORI_NAVN = {
   rolig: 'Rolig', langtur: 'Langtur', terskel: 'Terskel', intervall: 'Intervall',
   tempo: 'Tempo', konkurranse: 'Konkurranse', restitusjon: 'Restitusjon', annet: 'Annet',

@@ -60,6 +60,8 @@ Selve innlegget.
 - Felles beregninger (tempo, varighet, øvelsesnavn): `src/lib/okt-core.mjs`, som brukes av både siden og synken.
 - Forsiden: `Hero.astro` (bilde i `src/assets/`, tekst i `hero` i `src/data/profil.mjs`, parallax med CSS scroll-animasjoner), så `MalSeksjon.astro` (nåværende mål og tempolinjal).
   Skriv animasjoner med langformer (`animation-name`, `animation-timeline` …), ellers lager minifiseringen en ugyldig shorthand.
+- Nedlastinger: `/data/okter.xlsx` (exceljs, ark: Økter, Styrke, Uker, Om dataene), `/data/okter.csv` og `/data/okter.json`, laget ved bygg i `src/pages/data/`.
+  Kolonnene for CSV ligger i `EKSPORT_KOLONNER` i `okt-core.mjs` og brukes også av «Bare valgt periode»-knappen i dashbordet.
 - Dashbordet: `src/components/Dashboard.astro` + `src/scripts/dashboard.ts`. Filtrene lagres i URL-en.
 - Supabase-prosjekt: `treningslogg` (ref `mtjwkcunpjgvagptuiet`, eu-north-1). Skjema: `supabase/migrations/`.
   Tabeller: `innlegg`, `okter`, `ovelser`, `sett`, `synk_status`, og visningene `ukesoversikt` og `tyngste_sett`.

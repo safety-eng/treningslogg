@@ -88,6 +88,17 @@ const json = JSON.stringify(okter).replace(/</g, '\\u003c');
     </div>
   </section>
 
+  <section class="last-ned" aria-labelledby="last-ned-tittel">
+    <h3 id="last-ned-tittel">Last ned dataene</h3>
+    <p>Alle øktene er åpne. Excel-filen har egne ark for økter, styrkesett og ukesoversikt.</p>
+    <div class="knapper">
+      <a class="knapp hoved" href="/data/okter.xlsx" download="treningslogg.xlsx">Excel (.xlsx)</a>
+      <a class="knapp" href="/data/okter.csv" download="treningslogg.csv">CSV</a>
+      <a class="knapp" href="/data/okter.json" download="treningslogg.json">JSON</a>
+      <button type="button" class="knapp" id="last-ned-periode">Bare valgt periode (CSV)</button>
+    </div>
+  </section>
+
   <div class="tooltip" id="tooltip" role="status" hidden></div>
   <script type="application/json" id="okter-data" set:html={json}></script>
 </section>
@@ -156,6 +167,20 @@ const json = JSON.stringify(okter).replace(/</g, '\\u003c');
   .dash th.h, .dash td.h { text-align: right; font-variant-numeric: tabular-nums; }
   .dash td.h { white-space: nowrap; }
   .dash .tom { color: var(--ink-2); margin-top: 1rem; }
+
+  .dash .last-ned { margin-top: 2.75rem; }
+  .dash .last-ned h3 { margin-bottom: 0.5rem; }
+  .dash .last-ned p { color: var(--ink-2); margin: 0 0 1rem; max-width: 60ch; }
+  .dash .knapper { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .dash .knapp {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 1rem; border-radius: 999px;
+    border: 1px solid var(--axis); background: transparent; color: var(--ink);
+    font: inherit; font-weight: 500; font-size: 0.98rem; text-decoration: none; cursor: pointer;
+  }
+  .dash .knapp:hover { border-color: var(--ink); color: var(--ink); }
+  .dash .knapp.hoved { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .dash .knapp.hoved:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
   .dash .tooltip {
     position: fixed; z-index: 10; pointer-events: none;

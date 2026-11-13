@@ -1,4 +1,4 @@
-import { formatKlokke, formatTimer, formatTempo, TYPE_NAVN, KATEGORI_NAVN } from '../lib/okt-core.mjs';
+import { formatKlokke, formatTimer, formatTempo, somCsv, TYPE_NAVN, KATEGORI_NAVN } from '../lib/okt-core.mjs';
 
 type Type = 'lop' | 'styrke' | 'annet';
 interface Sett { nr: number; reps: number; kg: number | null }
@@ -434,6 +434,20 @@ export function startDashboard() {
     fyllTabell(utvalg);
     fyllStyrke(utvalg);
   }
+
+  // Last ned bare økter i valgt periode og type som CSV.
+  document.getElementById('last-ned-periode')?.addEventListener('click', () => {
+    if (!sist) return;
+    const csv = somCsv(sist.utvalg, location.origin);
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `treningslogg-${sist.fra}-til-${sist.til}${sist.t.type !== 'alle' ? `-${sist.t.type}` : ''}.csv`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
 
   skrivSkjema(lesUrl());
   skjema.addEventListener('change', oppdater);
