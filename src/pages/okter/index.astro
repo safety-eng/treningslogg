@@ -8,8 +8,8 @@ const innlegg = await hentInnlegg();
 <Base tittel="Alle økter">
   <section class="wrap arkiv">
     <h1>Alle økter</h1>
-    <p class="ingress">{innlegg.length} {innlegg.length === 1 ? 'innlegg' : 'innlegg'}, nyeste først.</p>
-    <InnleggListe innlegg={innlegg} />
+    <p class="ingress">{innlegg.length} innlegg, nyeste først.</p>
+    <InnleggListe innlegg={innlegg} overskrift={2} />
   </section>
 </Base>
 

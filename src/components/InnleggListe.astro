@@ -1,52 +1,106 @@
 ---
-import { formatDato } from '../lib/data';
-import { parseVarighet, formatKlokke, formatTempo, TYPE_NAVN } from '../lib/okt-core.mjs';
+import { formatDatoMedUkedag, utdrag } from '../lib/data';
+import { parseVarighet, formatKlokke, formatTempo } from '../lib/okt-core.mjs';
 
-type Innlegg = { id: string; data: any };
+type Innlegg = { id: string; data: any; body?: string };
 interface Props {
   innlegg: Innlegg[];
+  overskrift?: 2 | 3;
 }
-const { innlegg } = Astro.props;
+const { innlegg, overskrift = 3 } = Astro.props;
+const Tittel = overskrift === 2 ? 'h2' : 'h3';
+const tall = new Intl.NumberFormat('nb-NO', { maximumFractionDigits: 2 });
 
-function sammendrag(okter: any[]) {
-  return okter.map((o) => {
-    const sek = parseVarighet(o.varighet);
-    if (o.type === 'lop') return `${String(o.distanse_km).replace('.', ',')} km på ${formatKlokke(sek)} (${formatTempo((sek ?? 0) / o.distanse_km)} /km)`;
-    if (o.type === 'styrke') return `Styrke, ${o.ovelser.length} ${o.ovelser.length === 1 ? 'øvelse' : 'øvelser'}`;
-    return `${o.aktivitet.charAt(0).toUpperCase()}${o.aktivitet.slice(1)}${sek ? `, ${formatKlokke(sek)}` : ''}`;
-  });
+function sammendrag(o: any) {
+  const sek = parseVarighet(o.varighet);
+  if (o.type === 'lop') return [`${tall.format(o.distanse_km)} km`, formatKlokke(sek), `${formatTempo((sek ?? 0) / o.distanse_km)} /km`];
+  if (o.type === 'styrke') return [`Styrke`, `${o.ovelser.length} ${o.ovelser.length === 1 ? 'øvelse' : 'øvelser'}`];
+  const navn = `${o.aktivitet.charAt(0).toUpperCase()}${o.aktivitet.slice(1)}`;
+  return [navn, ...(o.distanse_km ? [`${tall.format(o.distanse_km)} km`] : []), ...(sek ? [formatKlokke(sek)] : [])];
 }
 ---
-<ol class="innlegg-liste" reversed>
+<ol class="kortliste" reversed>
   {innlegg.map((i) => (
-    <li>
-      <time datetime={i.data.dato}>{formatDato(i.data.dato)}</time>
-      <div>
-        <a href={`/okter/${i.id}/`} class="tittel">{i.data.tittel}</a>
-        <p class="sammendrag">
-          {sammendrag(i.data.okter).map((s, n) => (
-            <span><i class={`nokkel ${i.data.okter[n].type}`} aria-hidden="true"></i>{s}</span>
-          ))}
+    <li class="kort uthulet">
+      <p class="topp">
+        <time datetime={i.data.dato}>{formatDatoMedUkedag(i.data.dato)}</time>
+        {i.data.plan && <span class="merkelapp">Uke {i.data.plan.uke}</span>}
+      </p>
+      <Tittel class="tittel"><a href={`/okter/${i.id}/`}>{i.data.tittel}</a></Tittel>
+      {i.data.okter.map((o: any) => (
+        <p class="tall">
+          <i class={`nokkel ${o.type}`} aria-hidden="true"></i>
+          {sammendrag(o).map((del) => <span>{del}</span>)}
         </p>
-      </div>
+      ))}
+      {i.body && <p class="utdrag">{utdrag(i.body)}</p>}
+      <p class="les" aria-hidden="true">Les innlegget</p>
     </li>
   ))}
 </ol>
 
 <style>
-  .innlegg-liste { list-style: none; margin: 0; padding: 0; }
-  li {
-    display: grid; grid-template-columns: 10rem 1fr; gap: 0.25rem 1.5rem;
-    padding: 1rem 0; border-bottom: 1px solid var(--rule);
+  .kortliste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
+    gap: 1.25rem;
   }
-  time { color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 0.15rem; }
-  .tittel { font-family: var(--font-cond); font-weight: 600; font-size: 1.45rem; text-decoration: none; line-height: 1.15; }
-  .tittel:hover { text-decoration: underline; }
-  .sammendrag { margin: 0.3rem 0 0; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
-  .sammendrag span { display: inline-flex; align-items: center; gap: 0.45rem; }
-  .nokkel { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .kort {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.4rem 1.5rem 1.3rem;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .kort:hover { background: var(--inset-bg-hover); box-shadow: var(--inset-shadow-hover); }
+  .kort:has(a:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .topp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+  time { font-weight: 500; }
+
+  .tittel {
+    font-family: var(--font-cond);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3.2vw, 2rem);
+    line-height: 1.05;
+    margin: 0.1rem 0 0.15rem;
+    text-wrap: balance;
+  }
+  .tittel a { text-decoration: none; }
+  .tittel a:focus-visible { outline: none; }
+  /* Hele boksen er klikkbar. */
+  .tittel a::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+  .kort:hover .tittel a { color: var(--accent); }
+
+  .tall {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 1rem;
+    margin: 0;
+    font-family: var(--font-cond);
+    font-weight: 600;
+    font-size: 1.2rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .nokkel { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: -0.4rem; }
   .nokkel.lop { background: var(--run); }
   .nokkel.styrke { background: var(--strength); }
   .nokkel.annet { background: var(--other); }
-  @media (max-width: 560px) { li { grid-template-columns: 1fr; } }
+
+  .utdrag { margin: 0.2rem 0 0; color: var(--ink-2); line-height: 1.5; max-width: 60ch; }
+  .les { margin: auto 0 0; padding-top: 0.4rem; font-size: 0.95rem; font-weight: 500; color: var(--muted); }
+  .kort:hover .les { color: var(--accent); }
 </style>
