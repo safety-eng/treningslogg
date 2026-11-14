@@ -10,7 +10,7 @@ export const profil = {
 export const hero = {
   tittel: 'Gjennom tykt og tynt',
   tekst:
-    'Trening er terapi for meg. Dette er loggen fra en reise gjennom skader og alt annet livet har bydd på, én økt av gangen.',
+    'Dette er loggen fra en reise gjennom skader og alt annet livet har bydd på, én økt av gangen.',
   bildeAlt: 'Løper i motlys langs Nidelva, med Nidarosdomen i bakgrunnen',
 };
 
