@@ -15,10 +15,11 @@ export const hero = {
 };
 
 export const mal = {
-  tittel: '10 km under 40:00',
+  tittel: '10 km under 38:00',
   distanse_km: 10,
-  tid: '40:00',
-  planNavn: '10 km under 40',
+  tid: '38:00',
+  // Navnet på planen i nye innlegg. Eldre innlegg beholder navnet de ble skrevet med.
+  planNavn: '10 km under 38',
   uker: 10,
 };
 

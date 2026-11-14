@@ -19,7 +19,7 @@ tittel: "Kort, beskrivende tittel"
 dato: "2026-11-11"          # ÅÅÅÅ-MM-DD, i anførselstegn
 klokkeslett: "10:02"        # valgfri
 plan:                       # valgfri, når økta er del av treningsplanen
-  navn: "10 km under 40"    # må være lik mal.planNavn i src/data/profil.mjs
+  navn: "10 km under 38"    # bruk mal.planNavn i src/data/profil.mjs (eldre innlegg beholder sitt navn)
   uke: 1
 okter:
   - type: lop
@@ -51,7 +51,7 @@ Selve innlegget.
 
 - Skriv på norsk bokmål, i førsteperson som Fredrik, kort og saklig (2–4 avsnitt).
 - Bygg på kommentaren hans. Ikke legg til opplevelser eller detaljer han ikke har nevnt.
-- Det er greit å sette økta i sammenheng med målet (10 km under 40:00, måltempo 4:00/km) og tidligere økter.
+- Det er greit å sette økta i sammenheng med målet (10 km under 38:00, måltempo 3:48/km; endret fra 40:00 den 14.11.2026) og tidligere økter.
 
 ## Personvern (åpen blogg)
 

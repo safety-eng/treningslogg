@@ -11,6 +11,12 @@ const { tittel, beskrivelse = profil.beskrivelse, bilde = '/og/forside.jpg', typ
 const fullTittel = tittel ? `${tittel} | ${profil.bloggnavn}` : profil.bloggnavn;
 const url = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
 const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
+const sti = Astro.url.pathname;
+const meny = [
+  { href: '/#statistikk', tekst: 'Statistikk', aktiv: false },
+  { href: '/okter/', tekst: 'Alle økter', aktiv: sti.startsWith('/okter') },
+  { href: '/om-siden/', tekst: 'Om siden', aktiv: sti.startsWith('/om-siden') },
+];
 ---
 <!doctype html>
 <html lang="nb">
@@ -34,14 +40,17 @@ const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
     <link rel="preload" href="/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/json" href="/data/okter.json" title="Alle økter som JSON" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
   <body>
-    <header class="site-header wrap">
+    <header class="site-header wrap" id="topp">
       <a class="logo" href="/">{profil.bloggnavn}</a>
-      <nav aria-label="Hovedmeny">
-        <a href="/">Statistikk</a>
-        <a href="/okter/">Alle økter</a>
-        <a href="/om-siden/">Om siden</a>
+      <button class="meny-knapp" type="button" aria-expanded="false" aria-controls="hovedmeny">
+        <span class="strek" aria-hidden="true"></span>
+        <span class="visually-hidden">Meny</span>
+      </button>
+      <nav id="hovedmeny" aria-label="Hovedmeny">
+        {meny.map((m) => <a href={m.href} aria-current={m.aktiv ? 'page' : undefined}>{m.tekst}</a>)}
       </nav>
     </header>
     <main>
@@ -58,27 +67,77 @@ const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
       </p>
     </footer>
     <NyhetsbrevPopup />
+    <script>
+      // Hamburgermeny på små skjermer.
+      const topp = document.getElementById('topp');
+      const knapp = topp?.querySelector<HTMLButtonElement>('.meny-knapp');
+      const settApen = (apen: boolean) => {
+        if (!topp || !knapp) return;
+        topp.toggleAttribute('data-apen', apen);
+        knapp.setAttribute('aria-expanded', String(apen));
+      };
+      knapp?.addEventListener('click', () => settApen(knapp.getAttribute('aria-expanded') !== 'true'));
+      topp?.querySelectorAll('nav a').forEach((a) => a.addEventListener('click', () => settApen(false)));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && knapp?.getAttribute('aria-expanded') === 'true') { settApen(false); knapp.focus(); }
+      });
+      matchMedia('(min-width: 641px)').addEventListener('change', (e) => { if (e.matches) settApen(false); });
+    </script>
   </body>
 </html>
 
 <style>
   .site-header {
     display: flex;
-    align-items: baseline;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
+    gap: 0 1rem;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
   }
   .logo {
     font-family: var(--font-cond);
     font-weight: 600;
     font-size: 1.25rem;
     text-decoration: none;
+    padding: 0.35rem 0;
   }
   nav { display: flex; gap: 1.25rem; font-weight: 500; }
-  nav a { text-decoration: none; color: var(--ink-2); }
+  nav a { text-decoration: none; color: var(--ink-2); padding: 0.35rem 0; }
   nav a:hover { color: var(--accent); }
+  nav a[aria-current='page'] { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 0.35em; text-decoration-thickness: 2px; }
+
+  .meny-knapp { display: none; }
+
+  @media (max-width: 640px) {
+    .site-header { padding-top: 0.6rem; padding-bottom: 0.6rem; }
+    /* Uten JavaScript vises menyen alltid; med JavaScript bak en knapp. */
+    :global(html.js) .meny-knapp {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2.75rem; height: 2.75rem; margin-right: -0.5rem;
+      border: 0; border-radius: 10px; background: transparent; color: var(--ink); cursor: pointer;
+    }
+    .meny-knapp:hover { background: var(--inset-bg); }
+    .strek, .strek::before, .strek::after {
+      display: block; position: relative; width: 1.35rem; height: 2px; border-radius: 2px; background: currentColor;
+    }
+    .strek::before, .strek::after { content: ''; position: absolute; left: 0; }
+    .strek::before { top: -7px; }
+    .strek::after { top: 7px; }
+    [data-apen] .strek { background: transparent; }
+    [data-apen] .strek::before { top: 0; transform: rotate(45deg); }
+    [data-apen] .strek::after { top: 0; transform: rotate(-45deg); }
+
+    nav { flex-basis: 100%; flex-direction: column; gap: 0; margin-top: 0.4rem; border-top: 1px solid var(--rule); }
+    nav a { padding: 0.85rem 0; border-bottom: 1px solid var(--rule); font-size: 1.1rem; color: var(--ink); }
+    :global(html.js) nav { display: none; }
+    :global(html.js) [data-apen] nav { display: flex; }
+  }
+  @media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+    .strek, .strek::before, .strek::after { transition: transform 0.18s ease, top 0.18s ease, background-color 0.18s ease; }
+  }
+
   .site-footer { margin-top: 4rem; padding-bottom: 2.5rem; color: var(--muted); font-size: 0.95rem; }
   .site-footer p { margin-top: 1rem; }
 </style>

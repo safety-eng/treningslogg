@@ -4,7 +4,7 @@ const { okter } = Astro.props;
 // Escaper "<" så JSON-en ikke kan lukke script-taggen.
 const json = JSON.stringify(okter).replace(/</g, '\\u003c');
 ---
-<section class="dash wrap" aria-labelledby="dash-tittel">
+<section class="dash wrap" id="statistikk" aria-labelledby="dash-tittel">
   <h2 id="dash-tittel">Statistikk</h2>
 
   <form class="filtre" id="filtre" aria-label="Filtrer statistikken">
@@ -204,4 +204,53 @@ const json = JSON.stringify(okter).replace(/</g, '\\u003c');
     .dash .tall .ledende dd { font-size: 2.75rem; }
   }
 
+
+  .dash #kalender-plott { min-height: 0; }
+
+  /* ---------- mobil ---------- */
+  @media (max-width: 640px) {
+    .dash .filtre { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+    /* Filterknappene ligger på én rad som kan sveipes sidelengs. */
+    .dash .segment {
+      /* Fieldset vokser ellers til innholdet; fast bredde gjør at raden kan rulles. */
+      box-sizing: border-box; width: calc(100% + 2.5rem); min-width: 0;
+      flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+      margin: 0 -1.25rem; padding: 0.15rem 1.25rem;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 1rem, #000 calc(100% - 1.75rem), transparent);
+      mask-image: linear-gradient(90deg, transparent 0, #000 1rem, #000 calc(100% - 1.75rem), transparent);
+    }
+    .dash .segment::-webkit-scrollbar { display: none; }
+    .dash .segment label { flex: none; }
+    .dash .segment span { padding: 0.55rem 0.95rem; }
+    .dash .ekstra { flex-wrap: wrap; }
+    /* Minst 16px hindrer at iPhone zoomer inn når feltet får fokus. */
+    .dash select, .dash input[type='date'] { font-size: 16px; padding: 0.45rem 0.6rem; }
+
+    /* Øktene som kort i stedet for en bred tabell. */
+    .dash #tabell { min-width: 0; }
+    .dash #tabell thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .dash #tabell tr {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      grid-template-areas: 'dato dato opplevd' 'okt okt okt' 'type type type' 'km tid tempo';
+      gap: 0.2rem 1.1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .dash #tabell td { display: block; padding: 0; border: 0; text-align: left; }
+    .dash #tabell td.dato { grid-area: dato; color: var(--muted); font-size: 0.9rem; }
+    .dash #tabell td.opplevd { grid-area: opplevd; justify-self: end; color: var(--ink-2); font-size: 0.9rem; }
+    .dash #tabell td.okt { grid-area: okt; font-weight: 600; font-size: 1.05rem; }
+    .dash #tabell td.type { grid-area: type; color: var(--ink-2); font-size: 0.95rem; }
+    .dash #tabell td.km { grid-area: km; }
+    .dash #tabell td.tid { grid-area: tid; }
+    .dash #tabell td.tempo { grid-area: tempo; }
+    .dash #tabell td.km, .dash #tabell td.tid, .dash #tabell td.tempo {
+      font-family: var(--font-cond); font-weight: 600; font-size: 1.15rem; margin-top: 0.15rem;
+    }
+    .dash #tabell td.tom { display: none; }
+    .dash #styrke-tabell { min-width: 0; font-size: 0.92rem; }
+
+    .dash .knapp { padding: 0.6rem 1rem; }
+  }
 </style>

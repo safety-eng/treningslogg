@@ -125,7 +125,8 @@ export function startDashboard() {
     if (t.periode === 'egen') { if (t.fra) q.set('fra', t.fra); if (t.til) q.set('til', t.til); }
     if (t.type !== 'alle') q.set('type', t.type);
     const s = q.toString();
-    history.replaceState(null, '', s ? `?${s}` : location.pathname);
+    // Behold #anker (f.eks. /#statistikk), så nettleseren fortsatt ruller dit.
+    history.replaceState(null, '', (s ? `?${s}` : location.pathname) + location.hash);
   }
 
   function intervall(t: Tilstand): [string, string] {
@@ -356,20 +357,20 @@ export function startDashboard() {
     for (const o of rader) {
       const tr = el('tr');
       tr.append(el('td', kortDato(o.dato) + ' ' + o.dato.slice(0, 4), 'dato'));
-      const tdTittel = el('td');
+      const tdTittel = el('td', undefined, 'okt');
       const a = el('a', o.tittel);
       a.href = `/okter/${o.innlegg}/`;
       tdTittel.append(a);
       tr.append(tdTittel);
-      const tdType = el('td');
+      const tdType = el('td', undefined, 'type');
       const prikk = el('i', undefined, `nokkel ${o.type}`);
       prikk.style.marginRight = '0.45rem';
       tdType.append(prikk, document.createTextNode(beskrivType(o).replace(/, [\d,]+ km$/, '')));
       tr.append(tdType);
-      tr.append(el('td', o.km ? `${tall2.format(o.km)} km` : '–', 'h'));
-      tr.append(el('td', o.sek ? formatKlokke(o.sek) : '–', 'h'));
-      tr.append(el('td', o.tempo ? `${formatTempo(o.tempo)} /km` : '–', 'h'));
-      tr.append(el('td', o.opplevd ? stor(o.opplevd) : '–'));
+      tr.append(el('td', o.km ? `${tall2.format(o.km)} km` : '–', `h km${o.km ? '' : ' tom'}`));
+      tr.append(el('td', o.sek ? formatKlokke(o.sek) : '–', `h tid${o.sek ? '' : ' tom'}`));
+      tr.append(el('td', o.tempo ? `${formatTempo(o.tempo)} /km` : '–', `h tempo${o.tempo ? '' : ' tom'}`));
+      tr.append(el('td', o.opplevd ? stor(o.opplevd) : '–', `opplevd${o.opplevd ? '' : ' tom'}`));
       tbody.append(tr);
     }
     tom.hidden = rader.length > 0;
