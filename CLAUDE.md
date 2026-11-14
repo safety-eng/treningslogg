@@ -39,6 +39,10 @@ okter:
     aktivitet: sykkel
     distanse_km: 25         # valgfri
     varighet: "1:00:00"     # valgfri
+bilder:                     # valgfri
+  - src: "./bilder/2026-11-14-granasen.jpg"
+    alt: "Beskrivelse av bildet for skjermlesere"
+    tekst: "Bildetekst under bildet"   # valgfri
 ---
 Selve innlegget.
 ```
@@ -51,8 +55,11 @@ Selve innlegget.
 
 ## Personvern (åpen blogg)
 
-- Ikke publiser bildene han sender. Bare tallene går inn i filen.
+- Ikke publiser skjermbildene av treningsloggen. Bare tallene går inn i filen.
+- Bilder Fredrik ber om å få med (natur, steder) legges i `src/content/okter/bilder/ÅÅÅÅ-MM-DD-sted.jpg` og i `bilder` i frontmatter.
+  Lagre dem alltid på nytt uten metadata først (EXIF/GPS), f.eks. med PIL: `Image.open(fil).convert('RGB').save(ny, 'JPEG', quality=88)`.
 - Ikke ta med kart, ruter, startsted, adresser eller GPS-data, selv om de står på skjermbildet.
+- Nye innlegg sendes automatisk som e-post til abonnentene etter publisering. Rett feil før push, ikke etter.
 
 ## Prosjektet
 

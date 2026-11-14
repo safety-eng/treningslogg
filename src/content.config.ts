@@ -41,12 +41,14 @@ const annet = z.object({
 
 const okter = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/okter' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     tittel: z.string(),
     dato: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Bruk ÅÅÅÅ-MM-DD'),
     klokkeslett: z.string().regex(/^\d{2}:\d{2}$/).optional(),
     plan: z.object({ navn: z.string(), uke: z.number().int().positive() }).optional(),
     okter: z.array(z.discriminatedUnion('type', [lop, styrke, annet])).min(1),
+    // Bilder Fredrik vil ha med (ikke skjermbilder av loggen). Lagres i src/content/okter/bilder/ uten metadata.
+    bilder: z.array(z.object({ src: image(), alt: z.string(), tekst: z.string().optional() })).optional(),
   }),
 });
 

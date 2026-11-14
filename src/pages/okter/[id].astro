@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import { formatDatoMedUkedag, utdrag } from '../../lib/data';
 import { parseVarighet, formatKlokke, formatTempo, normaliserOvelse, TYPE_NAVN, KATEGORI_NAVN } from '../../lib/okt-core.mjs';
@@ -66,6 +67,13 @@ const beskrivelse = utdrag(entry.body, 160) || sammendrag;
       </section>
     ))}
 
+    {d.bilder?.map((b: any) => (
+      <figure class="bilde">
+        <Picture src={b.src} alt={b.alt} formats={['avif', 'webp']} widths={[480, 800, 1080]} sizes="(min-width: 760px) 560px, 92vw" />
+        {b.tekst && <figcaption>{b.tekst}</figcaption>}
+      </figure>
+    ))}
+
     <div class="tekst"><Content /></div>
     </div>
 
@@ -97,6 +105,9 @@ const beskrivelse = utdrag(entry.body, 160) || sammendrag;
   table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
   th { text-align: left; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--axis); padding: 0.4rem 1rem 0.4rem 0; }
   td { border-bottom: 1px solid var(--rule); padding: 0.5rem 1rem 0.5rem 0; }
+  .bilde { margin: 1.5rem 0 0; }
+  .bilde :global(img) { display: block; width: auto; max-width: 100%; max-height: min(78vh, 760px); height: auto; border-radius: 10px; }
+  .bilde figcaption { margin-top: 0.6rem; font-size: 0.95rem; color: var(--ink-2); }
   .tekst { margin-top: 1.5rem; font-size: 1.125rem; max-width: var(--measure); }
   .tekst :global(p:last-child) { margin-bottom: 0; }
   .bla { display: flex; justify-content: space-between; gap: 1.5rem; margin-top: 2rem; padding-top: 0.25rem; }
