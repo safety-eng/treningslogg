@@ -41,6 +41,7 @@ const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
       <nav aria-label="Hovedmeny">
         <a href="/">Statistikk</a>
         <a href="/okter/">Alle økter</a>
+        <a href="/om-siden/">Om siden</a>
       </nav>
     </header>
     <main>
@@ -49,10 +50,10 @@ const bildeUrl = new URL(bilde, Astro.site ?? Astro.url).href;
     <footer class="site-footer wrap">
       <hr class="lane" />
       <p>
-        <a href="/#nyhetsbrev">Få nye innlegg på e-post</a>. <a href="/personvern/">Personvern</a>.
+        <a href="/#nyhetsbrev">Få nye innlegg på e-post</a>. <a href="/om-siden/">Slik fungerer siden</a>. <a href="/personvern/">Personvern</a>.
       </p>
       <p>
-        Dataene er åpne: last ned alle økter som <a href="/data/okter.xlsx" download="treningslogg.xlsx">Excel</a>,
+        Dataene er åpne: last ned alle økter som <a href="/data/okter.xlsx" download="treningslogg.xlsx">Excel</a>,{' '}
         <a href="/data/okter.csv" download="treningslogg.csv">CSV</a> eller <a href="/data/okter.json" download="treningslogg.json">JSON</a>.
       </p>
     </footer>

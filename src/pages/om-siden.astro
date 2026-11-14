@@ -1,0 +1,112 @@
+---
+import Base from '../layouts/Base.astro';
+import { profil } from '../data/profil.mjs';
+---
+<Base tittel="Slik fungerer siden" beskrivelse="Hvordan treningsloggen er bygget, fra økt til publisert innlegg, statistikk og nyhetsbrev.">
+  <article class="wrap om">
+    <h1>Slik fungerer siden</h1>
+    <p class="ingress">
+      {profil.bloggnavn} er laget for at det skal være enkelt å logge hver økt, og for at tallene skal være åpne for alle som er interessert.
+    </p>
+
+    <h2>Fra økt til innlegg</h2>
+    <ol class="steg">
+      <li>
+        <h3>Økta logges</h3>
+        <p>Etter økta tar jeg et skjermbilde fra treningsappen og skriver noen ord om hvordan det gikk.</p>
+      </li>
+      <li>
+        <h3>Innlegget skrives</h3>
+        <p>
+          Claude, en KI-assistent fra Anthropic, leser tallene fra skjermbildet og viser meg et sammendrag. Deretter skriver den
+          innlegget ut fra kommentaren min. Selve skjermbildet blir ikke publisert.
+        </p>
+      </li>
+      <li>
+        <h3>Økta lagres</h3>
+        <p>
+          Hver økt blir én tekstfil på GitHub, med tallene øverst og teksten under. Filene er fasiten for alt på siden,
+          og hele historikken tas vare på.
+        </p>
+      </li>
+      <li>
+        <h3>Siden bygges</h3>
+        <p>
+          Vercel bygger nettsiden på nytt hver gang en ny økt lagres, vanligvis på under ett minutt. Samtidig sjekkes
+          tallene, så en feil i en fil stopper publiseringen i stedet for å havne i statistikken.
+        </p>
+      </li>
+      <li>
+        <h3>Database og e-post</h3>
+        <p>
+          Når siden er ute, kopieres øktene til en database hos Supabase, og de som har meldt seg på nyhetsbrevet,
+          får innlegget på e-post via Buttondown.
+        </p>
+      </li>
+    </ol>
+
+    <h2>Statistikken</h2>
+    <p>
+      Dashbordet på forsiden regnes ut i nettleseren din, fra alle øktene. Filtrene endrer bare visningen, og perioden du velger,
+      ligger i lenken, så du kan dele akkurat den visningen.
+    </p>
+    <p>
+      Tempo er tid delt på distanse. Snittempoet for en periode er samlet tid delt på samlet distanse, så lange turer teller mer
+      enn korte. Prognosen for 10 km på tempolinjalen bruker Riegels formel, som regner om en tid på én distanse til en annen.
+    </p>
+
+    <h2>Åpne data</h2>
+    <p>
+      Alle øktene kan lastes ned som <a href="/data/okter.xlsx" download="treningslogg.xlsx">Excel</a>,{' '}
+      <a href="/data/okter.csv" download="treningslogg.csv">CSV</a> eller <a href="/data/okter.json" download="treningslogg.json">JSON</a>.
+      Excel-filen har egne ark for økter, styrkesett og ukesoversikt. Filene oppdateres automatisk ved hver nye økt.
+    </p>
+
+    <h2>Teknologien</h2>
+    <dl class="tek">
+      <div><dt>Astro</dt><dd>Lager nettsiden som ferdige sider, så den laster raskt.</dd></div>
+      <div><dt>GitHub</dt><dd>Lagrer øktene og all historikk.</dd></div>
+      <div><dt>Vercel</dt><dd>Bygger og publiserer siden automatisk.</dd></div>
+      <div><dt>Supabase</dt><dd>Database med alle økter, øvelser og sett, på servere i Stockholm.</dd></div>
+      <div><dt>Buttondown</dt><dd>Sender nyhetsbrevet og håndterer påmelding og avmelding.</dd></div>
+      <div><dt>Claude</dt><dd>Leser skjermbildene og skriver innleggene ut fra kommentarene mine.</dd></div>
+    </dl>
+
+    <h2>Personvern</h2>
+    <p>
+      Siden bruker ingen sporing, annonser eller informasjonskapsler for statistikk. Bilder legges ut uten posisjonsdata, og kart,
+      ruter og startsteder publiseres ikke. Les mer på <a href="/personvern/">personvernsiden</a>.
+    </p>
+  </article>
+</Base>
+
+<style>
+  .om { padding-top: 2.5rem; max-width: calc(var(--measure) + 2.5rem); margin-left: auto; margin-right: auto; }
+  h1 { font-size: clamp(2.5rem, 7vw, 4rem); margin-bottom: 0.75rem; }
+  .ingress { font-size: 1.2rem; color: var(--ink-2); }
+  h2 { font-size: 1.75rem; margin: 2.5rem 0 0.9rem; }
+  p { max-width: var(--measure); font-size: 1.08rem; }
+
+  /* Stegene er en faktisk rekkefølge, så de er nummerert. */
+  .steg { list-style: none; counter-reset: steg; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .steg li {
+    counter-increment: steg;
+    display: grid; grid-template-columns: 2.6rem 1fr; gap: 0 1rem;
+    padding: 1.1rem 1.25rem; border-radius: 12px;
+    background: var(--inset-bg); box-shadow: var(--inset-shadow);
+  }
+  .steg li::before {
+    content: counter(steg);
+    grid-row: span 2;
+    font-family: var(--font-cond); font-weight: 700; font-size: 2.2rem; line-height: 1;
+    color: var(--accent);
+  }
+  .steg h3 { font-size: 1.3rem; margin: 0.15rem 0 0.3rem; }
+  .steg p { margin: 0; color: var(--ink-2); font-size: 1.02rem; }
+
+  .tek { margin: 0; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--rule); }
+  .tek > div { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
+  .tek dt { font-family: var(--font-cond); font-weight: 600; font-size: 1.2rem; }
+  .tek dd { margin: 0; color: var(--ink-2); }
+  @media (max-width: 520px) { .tek > div { grid-template-columns: 1fr; gap: 0.15rem; } }
+</style>

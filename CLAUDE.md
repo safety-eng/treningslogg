@@ -72,6 +72,7 @@ Selve innlegget.
   Påmelding går via Supabase-funksjonen `meld-pa` (dobbel bekreftelse hos Buttondown, ingenting lagres hos oss).
   `synk-treningslogg` sender nye innlegg (siste 7 dager) som e-post og sporer dem i `nyhetsbrev_sendt`.
   Begge krever secret `BUTTONDOWN_API_KEY` i Supabase. Personvernsiden: `src/pages/personvern.astro`.
+- «Om siden» (`src/pages/om-siden.astro`, lenket i menyen) forklarer flyten og teknologien. Oppdater den når oppsettet endres.
 - Delingsbilder: `/og/<id>.jpg` per innlegg og `/og/forside.jpg`, laget ved bygg med satori + sharp i `src/lib/delingsbilde.ts`
   (fonter i `src/assets/fonts/`). Open Graph-taggene settes i `Base.astro` via `bilde`-prop.
 - Nedlastinger: `/data/okter.xlsx` (exceljs, ark: Økter, Styrke, Uker, Om dataene), `/data/okter.csv` og `/data/okter.json`, laget ved bygg i `src/pages/data/`.
