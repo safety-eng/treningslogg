@@ -85,7 +85,13 @@ async function sendNyeInnlegg(data: { innlegg: Innlegg[]; okter: Okt[]; ovelser:
     try {
       const r = await fetch('https://api.buttondown.com/v1/emails', {
         method: 'POST',
-        headers: { 'Authorization': `Token ${nokkel}`, 'Content-Type': 'application/json', 'X-API-Version': '2026-04-01' },
+        headers: {
+          'Authorization': `Token ${nokkel}`,
+          'Content-Type': 'application/json',
+          'X-API-Version': '2026-04-01',
+          // Buttondown krever denne for å sende direkte via API (bekreftelse på at automatisk utsending er ønsket).
+          'X-Buttondown-Live-Dangerously': 'true',
+        },
         body: JSON.stringify({ subject: i.tittel, body: lagEpost(i, data.okter, data.ovelser), status: 'about_to_send' }),
       });
       if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 200)}`);
