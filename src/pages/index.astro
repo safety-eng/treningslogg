@@ -16,7 +16,11 @@ const ANTALL = 3;
 <Base bilde="/og/forside.jpg">
   <Hero />
   <NyhetsbrevSeksjon />
+
+  <!-- Statistikk: nåværende mål og dashbordet -->
   <MalSeksjon okter={okter} planUke={planUke} />
+  <div class="wrap"><hr class="lane" /></div>
+  <Dashboard okter={okter} />
 
   <section class="wrap siste" aria-labelledby="siste-tittel">
     <hr class="lane" />
@@ -26,14 +30,10 @@ const ANTALL = 3;
     </div>
     <InnleggListe innlegg={innlegg.slice(0, ANTALL)} minBredde="19rem" />
   </section>
-
-  <div class="wrap statistikk-skille"><hr class="lane" /></div>
-  <Dashboard okter={okter} />
 </Base>
 
 <style>
-  .siste { padding-bottom: 1rem; }
+  .siste { margin-top: 3.5rem; padding-bottom: 1rem; }
   .hode { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 2.5rem 0 1.25rem; }
   .hode a { color: var(--ink-2); font-weight: 500; white-space: nowrap; }
-  .statistikk-skille { margin-top: 2.5rem; }
 </style>
